@@ -1,0 +1,21 @@
+---
+layout: default
+title: Teacher Panel
+---
+
+<h2>Enter Student Results</h2>
+<form action="submit_results.php" method="POST">
+    <label for="student_name">Student Name:</label>
+    <input type="text" id="student_name" name="student_name" required>
+
+    <label for="test1">Test 1 Score:</label>
+    <input type="number" id="test1" name="test1" required>
+
+    <label for="test2">Test 2 Score:</label>
+    <input type="number" id="test2" name="test2" required>
+
+    <label for="exam">Exam Score:</label>
+    <input type="number" id="exam" name="exam" required>
+
+    <button type="submit">Save Results</button>
+</form>
