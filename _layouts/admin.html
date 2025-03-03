@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - AdminClemz School Portal</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>Admin Panel - AdminClemz School Portal</h1>
+        <div class="menu-icon">⋮</div>
+    </header>
+
+    <section id="admin-login">
+        <h2>Admin Login</h2>
+        <form id="login-form">
+            <label for="admin-username">Username:</label>
+            <input type="text" id="admin-username" required>
+
+            <label for="admin-password">Password:</label>
+            <input type="password" id="admin-password" required>
+
+            <button type="submit">Login</button>
+        </form>
+    </section>
+
+    <section id="dashboard" style="display: none;">
+        <h2>Student Score Entry</h2>
+        <table id="score-table">
+            <tr>
+                <th>Name</th>
+                <th>Test 1</th>
+                <th>Test 2</th>
+                <th>Exam</th>
+                <th>Total</th>
+                <th>Average</th>
+                <th>PIN</th>
+            </tr>
+            <!-- Auto-generated student rows will go here -->
+        </table>
+        <button onclick="saveData()">Save Scores</button>
+        <button onclick="exportPDF()">Download PDF</button>
+        <button onclick="clearData()">Delete All Data</button>
+    </section>
+
+</body>
+</html>
