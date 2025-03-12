@@ -1,5 +1,22 @@
-title: "AdminClemz School Portal"
-description: "A School Result Checking System with Admin & Teacher Communication"
-baseurl: ""  
-url: "https://clemzclems.github.io/website2"
-theme: minima
+title: "Your Website Name"
+description: "A brief description of your website"
+baseurl: ""  # Keep this empty unless your site is in a subfolder
+url: "https://<your-username>.github.io"  # Replace with your GitHub Pages URL
+
+# Theme (if you're using Jekyll)
+theme: minima  # Or another theme like "jekyll-theme-cayman"
+
+# Build settings
+markdown: kramdown
+permalink: pretty
+exclude:
+  - "README.md"
+  - "node_modules"
+  - "vendor"
+  - "Gemfile"
+  - "Gemfile.lock"
+
+# Plugins (if needed)
+plugins:
+  - jekyll-feed
+  - jekyll-sitemap
