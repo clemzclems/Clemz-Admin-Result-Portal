@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OAuth Callback</title>
+</head>
+<body>
+    <h2>Processing Login...</h2>
+    <script>
+        // Extract the authorization code from the URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const authCode = urlParams.get("code");
+
+        if (authCode) {
+            alert("Authorization Code: " + authCode);
+            // Send authCode to your backend to exchange for access token
+        } else {
+            alert("No authorization code found.");
+        }
+    </script>
+</body>
+</html>
