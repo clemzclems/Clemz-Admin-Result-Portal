@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Check Results</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
-    <script src="/assets/js/results.js"></script>
+    
+    <!-- Link CSS -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
 </head>
 <body>
 
@@ -38,6 +39,11 @@
         <tr><td>Total</td><td id="total"></td></tr>
         <tr><td>Average</td><td id="average"></td></tr>
     </table>
+
+    <!-- Move scripts to bottom -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="assets/js/results.js" defer></script>
 
 </body>
 </html>
