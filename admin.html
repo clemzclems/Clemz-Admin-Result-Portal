@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - School Portal</title>
-    <link rel="stylesheet" href="/assets/css/admin.css"> <!-- Optional: Add CSS -->
-    <script src="/assets/js/admin.js" defer></script> <!-- JavaScript for functionality -->
+    <link rel="stylesheet" href="/assets/css/admin.css"> 
+    <script src="/assets/js/admin.js" defer></script> 
 </head>
 <body>
 
@@ -22,25 +22,8 @@
         <section>
             <h2>Generate Student Scratch PINs</h2>
             <button onclick="generatePins()">Generate New PINs</button>
+            <button onclick="downloadPins()" id="download-btn" style="display: none;">Download PINs</button>
             <ul id="pin-list"></ul>
-        </section>
-
-        <section>
-            <h2>Approve Teacher Result Entries</h2>
-            <button onclick="approveResults()">Approve Pending Results</button>
-            <p id="approval-status"></p>
-        </section>
-
-        <section>
-            <h2>View Student Access Logs</h2>
-            <button onclick="viewLogs()">View Logs</button>
-            <pre id="log-display"></pre>
-        </section>
-
-        <section>
-            <h2>Reset Expired PINs</h2>
-            <button onclick="resetPins()">Reset Expired PINs</button>
-            <p id="reset-status"></p>
         </section>
     </main>
 
