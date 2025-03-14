@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Results Portal</title>
-    
+
     <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -17,7 +17,7 @@
             color: white;
             padding: 20px;
         }
-        
+
         h1 {
             background: rgba(0, 0, 0, 0.5);
             padding: 10px;
@@ -129,6 +129,7 @@
         </table>
     </div>
 
+    <!-- JavaScript Code -->
     <script>
         function googleLogin() {
             google.accounts.id.prompt();
@@ -148,22 +149,44 @@
                 return;
             }
 
-            // Simulate fetching result from backend
-            document.getElementById("test1").textContent = Math.floor(Math.random() * 50) + 50;
-            document.getElementById("test2").textContent = Math.floor(Math.random() * 50) + 50;
-            document.getElementById("exam").textContent = Math.floor(Math.random() * 100);
-            document.getElementById("total").textContent = 
-                parseInt(document.getElementById("test1").textContent) + 
-                parseInt(document.getElementById("test2").textContent) + 
-                parseInt(document.getElementById("exam").textContent);
-            document.getElementById("average").textContent = 
-                Math.round(parseInt(document.getElementById("total").textContent) / 3);
-
-            document.getElementById("result-table").style.display = "table";
+            fetch("fetch_results.php", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: `student_id=${studentId}&scratch_card=${scratchCard}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    document.getElementById("test1").textContent = data.test1;
+                    document.getElementById("test2").textContent = data.test2;
+                    document.getElementById("exam").textContent = data.exam;
+                    document.getElementById("total").textContent = data.total;
+                    document.getElementById("average").textContent = data.average;
+                    document.getElementById("result-table").style.display = "table";
+                }
+            })
+            .catch(error => console.error("Error fetching results:", error));
         }
+    </script>
 
+    <!-- PDF Generation Script -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script>
         function downloadPDF() {
-            alert("PDF Download Functionality Coming Soon!");
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.text("Student Result Sheet", 20, 20);
+            doc.text(`Student ID: ${document.getElementById("student_id").value}`, 20, 30);
+            doc.text(`Test 1: ${document.getElementById("test1").textContent}`, 20, 40);
+            doc.text(`Test 2: ${document.getElementById("test2").textContent}`, 20, 50);
+            doc.text(`Exam: ${document.getElementById("exam").textContent}`, 20, 60);
+            doc.text(`Total: ${document.getElementById("total").textContent}`, 20, 70);
+            doc.text(`Average: ${document.getElementById("average").textContent}`, 20, 80);
+
+            doc.save("Result_Sheet.pdf");
         }
     </script>
 
