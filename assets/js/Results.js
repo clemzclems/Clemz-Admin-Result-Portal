@@ -4,9 +4,9 @@ function handleCredentialResponse(response) {
 }
 
 async function checkResult() {
-    const sheetId = "YOUR_GOOGLE_SHEET_ID"; // Replace with your actual Google Sheet ID
-    const apiKey = "YOUR_GOOGLE_API_KEY"; // Replace with your actual API key
-    const range = "Sheet1!A2:D"; // Adjust based on your Google Sheet structure
+    const sheetId = "YOUR_GOOGLE_SHEET_ID"; // Replace with your Google Sheet ID
+    const apiKey = "YOUR_GOOGLE_API_KEY"; // Replace with your API Key
+    const range = "Sheet1!A2:G"; // Adjust based on your Google Sheet structure
 
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
 
@@ -19,8 +19,8 @@ async function checkResult() {
             return;
         }
 
-        let studentId = document.getElementById("student_id").value;
-        let pin = document.getElementById("scratch_card").value;
+        let studentId = document.getElementById("student_id").value.trim();
+        let pin = document.getElementById("scratch_card").value.trim();
 
         let found = false;
         for (let row of data.values) {
@@ -44,4 +44,36 @@ async function checkResult() {
         console.error("Error fetching results:", error);
         alert("Failed to fetch results. Check your API key and sheet ID.");
     }
+}
+
+// PDF Download Function
+function downloadPDF() {
+    const { jsPDF } = window.jspdf;
+    let doc = new jsPDF();
+
+    let studentId = document.getElementById("student_id").value;
+    if (!studentId) {
+        alert("Please check your results first.");
+        return;
+    }
+
+    doc.text("Student Result", 10, 10);
+    doc.text("Student ID: " + studentId, 10, 20);
+
+    let resultData = [
+        ["Subject", "Score"],
+        ["Test 1", document.getElementById("test1").textContent],
+        ["Test 2", document.getElementById("test2").textContent],
+        ["Exam", document.getElementById("exam").textContent],
+        ["Total", document.getElementById("total").textContent],
+        ["Average", document.getElementById("average").textContent]
+    ];
+
+    let y = 30;
+    resultData.forEach(row => {
+        doc.text(row[0] + ": " + row[1], 10, y);
+        y += 10;
+    });
+
+    doc.save("Student_Result.pdf");
 }
