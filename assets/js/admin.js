@@ -1,51 +1,37 @@
-function generatePins() {
-    let pinList = document.getElementById("pin-list");
-    let downloadBtn = document.getElementById("download-btn");
-    pinList.innerHTML = ""; // Clear previous pins
+document.addEventListener("DOMContentLoaded", function () {
+    console.log("Admin panel loaded");
 
-    let pins = [];
-    for (let i = 0; i < 5; i++) { // Generate 5 new PINs
-        let pin = Math.floor(100000 + Math.random() * 900000); // 6-digit PIN
-        pins.push(pin);
-        let li = document.createElement("li");
-        li.textContent = pin;
-        pinList.appendChild(li);
+    // Function to generate student scratch PINs
+    function generatePins() {
+        const pinList = document.getElementById("pin-list");
+        pinList.innerHTML = ""; // Clear previous pins
+
+        for (let i = 0; i < 5; i++) {
+            const pin = Math.floor(100000 + Math.random() * 900000); // 6-digit PIN
+            const listItem = document.createElement("li");
+            listItem.textContent = pin;
+            pinList.appendChild(listItem);
+        }
     }
 
-    // Store generated PINs in localStorage
-    localStorage.setItem("generatedPins", JSON.stringify(pins));
-
-    // Show the download button
-    downloadBtn.style.display = "inline-block";
-
-    alert("New PINs generated successfully!");
-}
-
-function downloadPins() {
-    let pins = JSON.parse(localStorage.getItem("generatedPins"));
-    if (!pins || pins.length === 0) {
-        alert("No PINs available to download. Generate new PINs first.");
-        return;
+    // Function to approve teacher result entries
+    function approveResults() {
+        document.getElementById("approval-status").textContent = "All results have been approved!";
     }
 
-    // Generate timestamp (YYYYMMDD_HHMMSS format)
-    let now = new Date();
-    let timestamp = now.getFullYear() +
-                    String(now.getMonth() + 1).padStart(2, '0') +
-                    String(now.getDate()).padStart(2, '0') + "_" +
-                    String(now.getHours()).padStart(2, '0') +
-                    String(now.getMinutes()).padStart(2, '0') +
-                    String(now.getSeconds()).padStart(2, '0');
+    // Function to view student access logs
+    function viewLogs() {
+        document.getElementById("log-display").textContent = "Displaying student access logs...";
+    }
 
-    let pinText = "Generated Student Scratch PINs:\n" + pins.join("\n");
-    let blob = new Blob([pinText], { type: "text/plain" });
+    // Function to reset expired PINs
+    function resetPins() {
+        document.getElementById("reset-status").textContent = "Expired PINs have been reset!";
+    }
 
-    let filename = `Student_Scratch_PINs_${timestamp}.txt`;
-
-    let link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-}
+    // Attach event listeners to buttons
+    document.querySelector("button[onclick='generatePins()']").addEventListener("click", generatePins);
+    document.querySelector("button[onclick='approveResults()']").addEventListener("click", approveResults);
+    document.querySelector("button[onclick='viewLogs()']").addEventListener("click", viewLogs);
+    document.querySelector("button[onclick='resetPins()']").addEventListener("click", resetPins);
+});p
