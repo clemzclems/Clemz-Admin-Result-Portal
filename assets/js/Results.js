@@ -3,11 +3,12 @@ function handleCredentialResponse(response) {
     alert("Sign-In Successful! Now you can fetch results.");
 }
 
-async function checkResult() {
-    const sheetId = "YOUR_GOOGLE_SHEET_ID"; // Replace with your Google Sheet ID
-    const apiKey = "YOUR_GOOGLE_API_KEY"; // Replace with your API Key
-    const range = "Sheet1!A2:G"; // Adjust based on your Google Sheet structure
+// Google Sheet API Credentials
+const sheetId = "1feNyfAjeawcinIjhHH5MLowbDjnP1OGE7anEHcyOj74"; // Your Google Sheet ID
+const apiKey = "YOUR_GOOGLE_API_KEY"; // You still need to replace this with your actual API key
+const range = "Sheet1!A2:G"; // Adjust based on your Google Sheet structure
 
+async function checkResult() {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
 
     try {
@@ -77,3 +78,15 @@ function downloadPDF() {
 
     doc.save("Student_Result.pdf");
 }
+
+// Load Google Sign-In Button
+window.onload = function () {
+    google.accounts.id.initialize({
+        client_id: "766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com",
+        callback: handleCredentialResponse
+    });
+    google.accounts.id.renderButton(
+        document.getElementById("google-signin"),
+        { theme: "outline", size: "large" }
+    );
+};
