@@ -24,7 +24,7 @@ Enter your Student ID and Scratch Card PIN below.
 </div>
 <div class="g_id_signin" data-type="standard"></div>
 
-<table id="result-table" style="display:none;">
+<table id="result-table" style="display:none; width: 100%; border-collapse: collapse;">
     <tr><th>Subject</th><th>Score</th></tr>
     <tr><td>Test 1</td><td id="test1"></td></tr>
     <tr><td>Test 2</td><td id="test2"></td></tr>
@@ -36,3 +36,4 @@ Enter your Student ID and Scratch Card PIN below.
 <!-- Link to JavaScript file -->
 <script src="/assets/js/results.js"></script>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
