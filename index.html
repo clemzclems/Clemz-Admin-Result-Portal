@@ -3,142 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Student Result Portal</title>
+    <title>Student Result System</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #4A90E2, #9013FE);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        text-align: center;
-        background: linear-gradient(to right, #ff758c, #ff7eb3, #ff85d8);
-        color: white;
-        margin: 0;
-        padding: 0;
-    }
+        .container {
+            max-width: 700px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            color: black;
+        }
 
-    header {
-        background: rgba(0, 0, 0, 0.8);
-        padding: 15px;
-        font-size: 24px;
-    }
+        input, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
 
-    .container {
-        max-width: 600px;
-        margin: 20px auto;
-        background: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-        color: black;
-    }
+        button {
+            background: #008CBA;
+            color: white;
+            cursor: pointer;
+        }
 
-    input, button {
-        width: 80%;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 5px;
-        border: 1px solid #ccc;
-    }
+        button:hover {
+            background: #005f7a;
+        }
 
-    button {
-        background: #008CBA;
-        color: white;
-        cursor: pointer;
-    }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            color: black;
+        }
 
-    button:hover {
-        background: #005f7a;
-    }
+        th, td {
+            padding: 10px;
+            border: 1px solid black;
+            text-align: center;
+        }
 
-    table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    table, th, td {
-        border: 1px solid black;
-    }
-
-    th, td {
-        padding: 10px;
-        text-align: center;
-    }
-</style>
-
+        th {
+            background: #333;
+            color: white;
+        }
+    </style>
 </head>
 <body>
-<header>Student Result Portal</header>
+
+<header><h1>Student Result Portal</h1></header>
 
 <div class="container">
-    <h2>Login as</h2>
-    <button onclick="login('admin')">Admin</button>
-    <button onclick="login('teacher')">Teacher</button>
-    <button onclick="login('student')">Student</button>
+    <h2>Login with Google</h2>
+    <div id="g_id_onload"
+         data-client_id="YOUR_GOOGLE_CLIENT_ID"
+         data-callback="handleCredentialResponse">
+    </div>
+    <div class="g_id_signin" data-type="standard"></div>
 </div>
 
 <!-- Admin Panel -->
 <div id="admin-panel" class="container" style="display:none;">
     <h2>Admin Dashboard</h2>
-    <button onclick="generatePins()">Generate Scratch Card PINs</button>
-    <button onclick="viewPins()">View Generated PINs</button>
-    <button onclick="viewResults()">View Submitted Results</button>
-    <button onclick="approveResults()">Approve Teacher Results</button>
-    <button onclick="resetPins()">Reset PINs</button>
+    <button onclick="generatePin()">Generate Scratch Card PIN</button>
+    <button onclick="viewPins()">View PINs</button>
     <button onclick="logout()">Logout</button>
     <p id="admin-status"></p>
     <ul id="pin-list"></ul>
-    <div id="teacher-results"></div>
 </div>
 
 <!-- Teacher Panel -->
 <div id="teacher-panel" class="container" style="display:none;">
     <h2>Teacher Dashboard</h2>
     <input type="text" id="student_name" placeholder="Enter Student Name">
-    <input type="number" id="test1" placeholder="Test 1 Score">
-    <input type="number" id="test2" placeholder="Test 2 Score">
-    <input type="number" id="exam" placeholder="Exam Score">
+    <table>
+        <thead>
+            <tr>
+                <th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Average</th>
+            </tr>
+        </thead>
+        <tbody id="subject-inputs"></tbody>
+    </table>
     <button onclick="submitResults()">Submit Results</button>
     <button onclick="logout()">Logout</button>
-    <p id="teacher-status"></p>
 </div>
 
 <!-- Student Panel -->
 <div id="student-panel" class="container" style="display:none;">
     <h2>Check Student Result</h2>
-    <input type="text" id="student_id" placeholder="Enter Student ID">
-    <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
+    <input type="text" id="student_id" placeholder="Enter Student Name">
+    <input type="text" id="scratch_card" placeholder="Enter Scratch Card PIN">
     <button onclick="checkResult()">Check Result</button>
     <button onclick="logout()">Logout</button>
 
     <table id="result-table" style="display:none;">
         <thead>
             <tr>
-                <th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
+                <th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Average</th>
             </tr>
         </thead>
-        <tbody>
-            <tr>
-                <td id="res_test1"></td>
-                <td id="res_test2"></td>
-                <td id="res_exam"></td>
-                <td id="res_total"></td>
-                <td id="res_average"></td>
-            </tr>
-        </tbody>
+        <tbody id="student-results"></tbody>
     </table>
 </div>
 
 <script>
     let currentUser = localStorage.getItem("currentUser") || "";
     let results = JSON.parse(localStorage.getItem("results")) || {};
-    let approvedResults = JSON.parse(localStorage.getItem("approvedResults")) || {};
+    let validPins = JSON.parse(localStorage.getItem("pins")) || [];
+
+    function handleCredentialResponse(response) {
+        let profile = JSON.parse(atob(response.credential.split('.')[1]));
+        let email = profile.email;
+
+        if (email.includes("admin")) {
+            login("admin");
+        } else if (email.includes("teacher")) {
+            login("teacher");
+        } else {
+            login("student");
+        }
+    }
 
     function login(user) {
         currentUser = user;
         localStorage.setItem("currentUser", user);
         document.querySelectorAll(".container").forEach(div => div.style.display = "none");
         document.getElementById(`${user}-panel`).style.display = "block";
+        if (user === "teacher") loadSubjects();
     }
 
     function logout() {
@@ -146,78 +151,75 @@
         location.reload();
     }
 
-    function generatePins() {
-        if (currentUser !== "admin") {
-            alert("Only Admin Can Generate PINs!");
-            return;
-        }
-
-        let pins = JSON.parse(localStorage.getItem("pins")) || [];
+    function generatePin() {
         let newPin = Math.floor(100000 + Math.random() * 900000);
-        let timestamp = new Date().toLocaleString();
-        pins.push({ pin: newPin, timestamp });
-        localStorage.setItem("pins", JSON.stringify(pins));
-
-        document.getElementById("admin-status").textContent = `New PIN Generated: ${newPin} (Time: ${timestamp})`;
+        let timestamp = new Date().getTime() + 24 * 60 * 60 * 1000; // Valid for 24 hours
+        validPins.push({ pin: newPin, expiry: timestamp });
+        localStorage.setItem("pins", JSON.stringify(validPins));
+        alert(`New PIN Generated: ${newPin}`);
     }
 
-    function viewPins() {
-        if (currentUser !== "admin") {
-            alert("Only Admin Can View PINs!");
-            return;
-        }
+    function loadSubjects() {
+        let subjects = ["Mathematics", "English", "Science", "Social Studies", "Computer", "Agric", "French", "Civic", "Music", "Fine Art", "PHE"];
+        let tbody = document.getElementById("subject-inputs");
+        tbody.innerHTML = "";
+        subjects.forEach(sub => {
+            tbody.innerHTML += `
+                <tr>
+                    <td>${sub}</td>
+                    <td><input type="number" class="ca1"></td>
+                    <td><input type="number" class="ca2"></td>
+                    <td><input type="number" class="exam"></td>
+                    <td class="total"></td>
+                    <td class="average"></td>
+                </tr>`;
+        });
 
-        let pins = JSON.parse(localStorage.getItem("pins")) || [];
-        let pinList = document.getElementById("pin-list");
-        pinList.innerHTML = "";
-        pins.forEach(p => {
-            let li = document.createElement("li");
-            li.textContent = `PIN: ${p.pin} (Generated: ${p.timestamp})`;
-            pinList.appendChild(li);
+        document.querySelectorAll(".ca1, .ca2, .exam").forEach(input => {
+            input.addEventListener("input", calculateTotals);
+        });
+    }
+
+    function calculateTotals() {
+        let rows = document.querySelectorAll("#subject-inputs tr");
+        rows.forEach(row => {
+            let ca1 = row.querySelector(".ca1").value || 0;
+            let ca2 = row.querySelector(".ca2").value || 0;
+            let exam = row.querySelector(".exam").value || 0;
+            let total = parseInt(ca1) + parseInt(ca2) + parseInt(exam);
+            let avg = (total / 3).toFixed(2);
+            row.querySelector(".total").innerText = total;
+            row.querySelector(".average").innerText = avg;
         });
     }
 
     function submitResults() {
-        if (currentUser !== "teacher") {
-            alert("Only Teachers Can Submit Results!");
-            return;
-        }
-
         let student = document.getElementById("student_name").value;
-        let test1 = Number(document.getElementById("test1").value);
-        let test2 = Number(document.getElementById("test2").value);
-        let exam = Number(document.getElementById("exam").value);
-        let total = test1 + test2 + exam;
-        let average = total / 3;
+        if (!student) return alert("Enter student name");
 
-        results[student] = { test1, test2, exam, total, average };
-        localStorage.setItem("results", JSON.stringify(results));
-
-        document.getElementById("teacher-status").textContent = "Results Submitted for Admin Review!";
-    }
-
-    function viewResults() {
-        if (currentUser !== "admin") {
-            alert("Only Admin Can View Submitted Results!");
-            return;
-        }
-
-        let teacherResults = document.getElementById("teacher-results");
-        teacherResults.innerHTML = "<h3>Submitted Results:</h3>";
-        Object.keys(results).forEach(student => {
-            teacherResults.innerHTML += `<p>${student}: ${JSON.stringify(results[student])}</p>`;
+        let rows = document.querySelectorAll("#subject-inputs tr");
+        let studentData = {};
+        rows.forEach(row => {
+            let subject = row.children[0].innerText;
+            studentData[subject] = {
+                ca1: row.querySelector(".ca1").value,
+                ca2: row.querySelector(".ca2").value,
+                exam: row.querySelector(".exam").value,
+                total: row.querySelector(".total").innerText,
+                avg: row.querySelector(".average").innerText
+            };
         });
+
+        results[student] = studentData;
+        localStorage.setItem("results", JSON.stringify(results));
+        alert("Results saved!");
     }
 
-    function approveResults() {
-        if (currentUser !== "admin") {
-            alert("Only Admin Can Approve Results!");
-            return;
-        }
-
-        approvedResults = { ...results };
-        localStorage.setItem("approvedResults", JSON.stringify(approvedResults));
-        document.getElementById("admin-status").textContent = "All Results Approved!";
+    function checkResult() {
+        let student = document.getElementById("student_id").value;
+        let pin = document.getElementById("scratch_card").value;
+        if (!validPins.some(p => p.pin == pin)) return alert("Invalid PIN");
+        alert("Results displayed!");
     }
 </script>
 
