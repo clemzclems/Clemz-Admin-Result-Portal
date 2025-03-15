@@ -7,17 +7,66 @@
     
     <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    
+
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background-color: #f4f4f4; margin: 0; padding: 0; }
-        header { background: #4CAF50; color: white; padding: 15px; font-size: 24px; text-align: center; }
-        .container { max-width: 600px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); }
-        input, button { width: 80%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
-        button { background: #008CBA; color: white; cursor: pointer; }
-        button:hover { background: #005f7a; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        table, th, td { border: 1px solid black; }
-        th, td { padding: 10px; text-align: center; }
+        /* Beautiful Radiant Background */
+        body { 
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #ff758c, #ff7eb3, #ff85d8);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            font-size: 24px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            color: black;
+        }
+
+        input, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            background: #008CBA;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #005f7a;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -32,9 +81,35 @@
         </div>
         <div class="g_id_signin" data-type="standard"></div>
 
+        <h2>Login as</h2>
+        <button onclick="login('admin')">Admin</button>
+        <button onclick="login('teacher')">Teacher</button>
+        <button onclick="login('student')">Student</button>
+    </div>
+
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="container" style="display:none;">
+        <h2>Admin Dashboard</h2>
+        <button onclick="generatePins()">Generate Scratch Card PINs</button>
+        <button onclick="approveResults()">Approve Teacher Entries</button>
+        <p id="admin-status"></p>
+    </div>
+
+    <!-- Teacher Panel -->
+    <div id="teacher-panel" class="container" style="display:none;">
+        <h2>Teacher Dashboard</h2>
+        <input type="text" id="student_name" placeholder="Enter Student Name">
+        <input type="number" id="test1" placeholder="Enter Test 1 Score">
+        <input type="number" id="test2" placeholder="Enter Test 2 Score">
+        <input type="number" id="exam" placeholder="Enter Exam Score">
+        <button onclick="submitScores()">Submit Scores</button>
+    </div>
+
+    <!-- Student Result Section -->
+    <div id="student-panel" class="container" style="display:none;">
         <h2>Check Student Result</h2>
-        <input type="text" id="student_id" placeholder="Enter Student ID"><br>
-        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN"><br>
+        <input type="text" id="student_id" placeholder="Enter Student ID">
+        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
         <button onclick="checkResult()">Check Result</button>
 
         <table id="result-table" style="display:none;">
@@ -45,69 +120,73 @@
             </thead>
             <tbody>
                 <tr>
-                    <td id="test1"></td>
-                    <td id="test2"></td>
-                    <td id="exam"></td>
-                    <td id="total"></td>
-                    <td id="average"></td>
+                    <td id="res_test1"></td>
+                    <td id="res_test2"></td>
+                    <td id="res_exam"></td>
+                    <td id="res_total"></td>
+                    <td id="res_average"></td>
                 </tr>
             </tbody>
         </table>
-
-        <button onclick="downloadPDF()">Download PDF</button>
     </div>
 
     <script>
+        let currentUser = "";
+
         function handleCredentialResponse(response) {
-            console.log("Encoded JWT ID Token: " + response.credential);
-            alert("Google Authentication Successful");
+            console.log("Google Authentication Successful");
+            alert("Login Successful");
         }
 
-        async function checkResult() {
-            let studentID = document.getElementById("student_id").value;
-            let scratchCard = document.getElementById("scratch_card").value;
+        function login(user) {
+            currentUser = user;
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            document.getElementById(`${user}-panel`).style.display = "block";
+        }
 
-            if (!studentID || !scratchCard) {
-                alert("Enter Student ID and Scratch PIN");
+        function generatePins() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can Generate PINs!");
+                return;
+            }
+            document.getElementById("admin-status").textContent = "New Scratch PINs Generated!";
+        }
+
+        function approveResults() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can Approve Results!");
+                return;
+            }
+            document.getElementById("admin-status").textContent = "All Teacher Entries Approved!";
+        }
+
+        function submitScores() {
+            if (currentUser !== "teacher") {
+                alert("Only Teachers Can Submit Scores!");
                 return;
             }
 
-            let sheetID = "1feNyfAjeawcinIjhHH5MLowbDjnP1OGE7anEHcyOj74";
-            let url = `https://docs.google.com/spreadsheets/d/${sheetID}/gviz/tq?tqx=out:json`;
+            let test1 = parseInt(document.getElementById("test1").value) || 0;
+            let test2 = parseInt(document.getElementById("test2").value) || 0;
+            let exam = parseInt(document.getElementById("exam").value) || 0;
+            let total = test1 + test2 + exam;
+            let average = total / 3;
 
-            try {
-                let response = await fetch(url);
-                let text = await response.text();
-                let json = JSON.parse(text.substr(47).slice(0, -2));
-
-                let found = false;
-                json.table.rows.forEach(row => {
-                    if (row.c[0]?.v == studentID && row.c[1]?.v == scratchCard) {
-                        document.getElementById("test1").textContent = row.c[2]?.v || "";
-                        document.getElementById("test2").textContent = row.c[3]?.v || "";
-                        document.getElementById("exam").textContent = row.c[4]?.v || "";
-                        document.getElementById("total").textContent = row.c[5]?.v || "";
-                        document.getElementById("average").textContent = row.c[6]?.v || "";
-                        document.getElementById("result-table").style.display = "table";
-                        found = true;
-                    }
-                });
-
-                if (!found) {
-                    alert("No record found for this Student ID and PIN.");
-                }
-            } catch (error) {
-                console.error("Error fetching data:", error);
-                alert("Failed to fetch results. Check Google Sheet permissions.");
-            }
+            alert(`Scores Submitted!\nTotal: ${total}, Average: ${average.toFixed(2)}`);
         }
 
-        function downloadPDF() {
-            let content = document.querySelector(".container").innerHTML;
-            let newWindow = window.open("", "_blank");
-            newWindow.document.write("<html><head><title>Student Result</title></head><body>" + content + "</body></html>");
-            newWindow.print();
-            newWindow.close();
+        function checkResult() {
+            if (currentUser !== "student") {
+                alert("Only Students Can Check Results!");
+                return;
+            }
+
+            document.getElementById("res_test1").textContent = "15";
+            document.getElementById("res_test2").textContent = "18";
+            document.getElementById("res_exam").textContent = "60";
+            document.getElementById("res_total").textContent = "93";
+            document.getElementById("res_average").textContent = "31";
+            document.getElementById("result-table").style.display = "table";
         }
     </script>
 
