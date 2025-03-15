@@ -3,33 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <script src="assets/js/script.js" defer></script>
+    <title>Student Result Portal</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
-        <h1>Welcome to the Admin Panel</h1>
-        <nav>
-            <ul>
-                <li><a href="results.html">Check Results</a></li>
-                <li><a href="admin.html">Admin Dashboard</a></li>
-            </ul>
-        </nav>
+        <h1>Student Result Portal</h1>
     </header>
 
-    <main>
-        <h2>Admin Dashboard</h2>
-        <ul>
-            <li>Generate Student Scratch PINs</li>
-            <li>Approve Teacher Result Entries</li>
-            <li>View Student Access Logs</li>
-            <li>Reset Expired PINs</li>
-        </ul>
-    </main>
+    <!-- Admin Panel -->
+    <section class="admin-panel">
+        <h2>Admin Controls</h2>
+        <button data-action="generatePins">Generate Student Scratch PINs</button>
+        <button data-action="approveResults">Approve Teacher Result Entries</button>
+        <button data-action="viewLogs">View Student Access Logs</button>
+        <button data-action="resetPins">Reset Expired PINs</button>
+        
+        <div id="admin-status">
+            <ul id="pin-list"></ul>
+            <p id="approval-status"></p>
+            <p id="log-display"></p>
+            <p id="reset-status"></p>
+        </div>
+    </section>
 
-    <footer>
-        <p>&copy; 2025 My Website. All Rights Reserved.</p>
-    </footer>
+    <!-- Student Result Section -->
+    <section class="result-section">
+        <h2>Check Student Result</h2>
+        <input type="text" id="student_id" placeholder="Enter Student ID">
+        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
+        <button data-action="checkResult">Check Result</button>
+        
+        <table id="result-table">
+            <thead>
+                <tr>
+                    <th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td id="test1"></td>
+                    <td id="test2"></td>
+                    <td id="exam"></td>
+                    <td id="total"></td>
+                    <td id="average"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <button data-action="downloadPDF">Download PDF</button>
+    </section>
+
+    <script src="script.js"></script>
 </body>
 </html>
