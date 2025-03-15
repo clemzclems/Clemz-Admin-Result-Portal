@@ -4,15 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - School Portal</title>
+    
+    <!-- Stylesheet -->
     <link rel="stylesheet" href="/assets/css/admin.css"> 
+
+    <!-- JavaScript -->
     <script src="/assets/js/admin.js" defer></script> 
+
+    <!-- Google Sign-In -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 </head>
 <body>
 
     <header>
         <h1>Admin Dashboard</h1>
         <nav>
-            <a href="index.html">Home</a> | 
+            <a href="/index.html">Home</a> | 
             <a href="results.html">Student Results</a> | 
             <a href="logout.html">Logout</a>
         </nav>
@@ -25,7 +32,35 @@
             <button onclick="downloadPins()" id="download-btn" style="display: none;">Download PINs</button>
             <ul id="pin-list"></ul>
         </section>
+
+        <section>
+            <h2>Google Admin Login</h2>
+            <div id="google-login-btn"></div>
+            <p id="user-info"></p>
+        </section>
     </main>
+
+    <script>
+        // Initialize Google Sign-In
+        function handleCredentialResponse(response) {
+            console.log("Google Login Response:", response);
+            const user = JSON.parse(atob(response.credential.split(".")[1]));
+            alert("Welcome, " + user.name);
+            document.getElementById("user-info").textContent = "Logged in as: " + user.name;
+        }
+
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
+
+            google.accounts.id.renderButton(
+                document.getElementById("google-login-btn"),
+                { theme: "outline", size: "large" }
+            );
+        };
+    </script>
 
 </body>
 </html>
