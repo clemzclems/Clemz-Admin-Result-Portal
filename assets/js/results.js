@@ -1,3 +1,4 @@
+<script>
 // ====================== STUDENT RESULT FUNCTIONS ====================== //
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -56,3 +57,4 @@ document.addEventListener("DOMContentLoaded", function () {
     const downloadBtn = document.querySelector("button[data-action='downloadPDF']");
     if (downloadBtn) downloadBtn.addEventListener("click", downloadPDF);
 });
+</script>
