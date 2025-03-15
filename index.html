@@ -34,12 +34,9 @@
       color: black;
       display: none;
     }
-    /* The login container is shown by default */
-    #login-container {
-      display: block;
-    }
-    input,
-    button {
+    /* Login container is shown by default */
+    #login-container { display: block; }
+    input, button {
       width: 80%;
       padding: 10px;
       margin: 10px 0;
@@ -51,21 +48,16 @@
       color: white;
       cursor: pointer;
     }
-    button:hover {
-      background: #005f7a;
-    }
+    button:hover { background: #005f7a; }
     table {
       width: 100%;
       border-collapse: collapse;
       margin-top: 20px;
     }
-    table,
-    th,
-    td {
+    table, th, td {
       border: 1px solid black;
     }
-    th,
-    td {
+    th, td {
       padding: 10px;
       text-align: center;
     }
@@ -100,10 +92,17 @@
   <!-- Teacher Panel -->
   <div id="teacher-panel" class="container">
     <h2>Teacher Dashboard</h2>
+    <input type="text" id="teacher_username" placeholder="Enter Your Teacher Username" />
+    <br>
     <input type="text" id="student_name" placeholder="Enter Student Name" />
-    <input type="number" id="test1" placeholder="Test 1 Score" />
-    <input type="number" id="test2" placeholder="Test 2 Score" />
-    <input type="number" id="exam" placeholder="Exam Score" />
+    <h3>English Results</h3>
+    <input type="number" id="eng_test1" placeholder="English Test 1 Score" />
+    <input type="number" id="eng_test2" placeholder="English Test 2 Score" />
+    <input type="number" id="eng_exam" placeholder="English Exam Score" />
+    <h3>Maths Results</h3>
+    <input type="number" id="maths_test1" placeholder="Maths Test 1 Score" />
+    <input type="number" id="maths_test2" placeholder="Maths Test 2 Score" />
+    <input type="number" id="maths_exam" placeholder="Maths Exam Score" />
     <button onclick="submitResultsTeacher()">Submit Results</button>
     <button onclick="logout()">Logout</button>
     <p id="teacher-status"></p>
@@ -111,12 +110,13 @@
 
   <!-- Student Panel -->
   <div id="student-panel" class="container">
-    <h2>Check Student Result</h2>
-    <input type="text" id="student_id" placeholder="Enter Student ID" />
+    <h2>Student Dashboard</h2>
+    <input type="text" id="student_id" placeholder="Enter Your Student Name" />
+    <br>
     <input type="text" id="scratch_card" placeholder="Enter Scratch PIN" />
-    <button onclick="checkResult()">Check Result</button>
+    <br>
+    <button onclick="checkResult()">Check & Display Result</button>
     <button onclick="printResult()">Print Result</button>
-
     <table id="result-table" style="display: none;">
       <thead>
         <tr>
@@ -131,24 +131,25 @@
       <tbody>
         <tr>
           <td>English</td>
-          <td><input type="number" id="eng_test1" oninput="calculateTotal('eng')" /></td>
-          <td><input type="number" id="eng_test2" oninput="calculateTotal('eng')" /></td>
-          <td><input type="number" id="eng_exam" oninput="calculateTotal('eng')" /></td>
-          <td id="eng_total">0</td>
-          <td id="eng_average">0</td>
+          <td id="eng_test1_out"></td>
+          <td id="eng_test2_out"></td>
+          <td id="eng_exam_out"></td>
+          <td id="eng_total_out"></td>
+          <td id="eng_average_out"></td>
         </tr>
         <tr>
           <td>Maths</td>
-          <td><input type="number" id="maths_test1" oninput="calculateTotal('maths')" /></td>
-          <td><input type="number" id="maths_test2" oninput="calculateTotal('maths')" /></td>
-          <td><input type="number" id="maths_exam" oninput="calculateTotal('maths')" /></td>
-          <td id="maths_total">0</td>
-          <td id="maths_average">0</td>
+          <td id="maths_test1_out"></td>
+          <td id="maths_test2_out"></td>
+          <td id="maths_exam_out"></td>
+          <td id="maths_total_out"></td>
+          <td id="maths_average_out"></td>
         </tr>
       </tbody>
     </table>
+  </div>
 <script>
-    // Define default free credentials for admin and two teachers.
+    // Default free credentials
     const users = {
       admin: { username: "admin", password: "Clement" },
       teach1: { username: "teach1", password: "peace" },
@@ -156,15 +157,14 @@
     };
 
     let currentUser = "";
-    let results = {}; // Results submitted by teachers.
-    let resultsForApproval = {}; // Pending results for admin approval.
+    let results = {}; // All submitted results by teachers.
+    let resultsForApproval = {}; // Results pending admin approval.
     let approvedResults = {};
 
-    // Authentication function.
+    // Authentication function
     function authenticate() {
       const username = document.getElementById("username").value.trim();
       const password = document.getElementById("password").value.trim();
-
       if (users[username] && users[username].password === password) {
         currentUser = username;
         document.getElementById("login-container").style.display = "none";
@@ -180,11 +180,12 @@
       }
     }
 
+    // Logout – instant reload
     function logout() {
-      alert("Logging out...");
       location.reload();
     }
 
+    // Admin functions
     function generatePins() {
       if (currentUser !== "admin") {
         alert("Only Admin can generate PINs!");
@@ -205,7 +206,7 @@
       let pins = JSON.parse(localStorage.getItem("pins")) || [];
       let pinList = document.getElementById("pin-list");
       pinList.innerHTML = "";
-      pins.forEach((pin) => {
+      pins.forEach(pin => {
         let li = document.createElement("li");
         li.textContent = pin;
         pinList.appendChild(li);
@@ -222,30 +223,6 @@
       document.getElementById("admin-status").textContent = "All PINs Reset!";
     }
 
-    // Teacher function to submit results.
-    function submitResultsTeacher() {
-      if (currentUser !== "teach1" && currentUser !== "teach2") {
-        alert("Only Teachers can submit results!");
-        return;
-      }
-      let student = document.getElementById("student_name").value;
-      let test1 = Number(document.getElementById("test1").value);
-      let test2 = Number(document.getElementById("test2").value);
-      let exam = Number(document.getElementById("exam").value);
-      let total = test1 + test2 + exam;
-      let average = total / 3;
-
-      results[student] = { test1, test2, exam, total, average };
-      // Mark the result for approval.
-      resultsForApproval[student] = { test1, test2, exam, total, average };
-      document.getElementById("teacher-status").textContent = "Results Submitted!";
-      // Signal admin by showing a red dot.
-      if (document.getElementById("approval-signal")) {
-        document.getElementById("approval-signal").style.display = "inline";
-      }
-    }
-
-    // Admin function to see and approve pending results.
     function seeAndApprove() {
       if (currentUser !== "admin") {
         alert("Only Admin can approve results!");
@@ -258,30 +235,51 @@
       let resultText = "Pending Results for Approval:\n";
       for (let student in resultsForApproval) {
         let r = resultsForApproval[student];
-        resultText +=
-          `Student: ${student}, Test1: ${r.test1}, Test2: ${r.test2}, Exam: ${r.exam}, Total: ${r.total}, Average: ${r.average.toFixed(2)}\n`;
+        resultText += `Student: ${student}\n  English - Test1: ${r.eng.test1}, Test2: ${r.eng.test2}, Exam: ${r.eng.exam}, Total: ${r.eng.total}, Average: ${r.eng.average.toFixed(2)}\n  Maths - Test1: ${r.maths.test1}, Test2: ${r.maths.test2}, Exam: ${r.maths.exam}, Total: ${r.maths.total}, Average: ${r.maths.average.toFixed(2)}\n\n`;
       }
       let approve = confirm(resultText + "\nDo you approve these results?");
       if (approve) {
         approvedResults = { ...approvedResults, ...resultsForApproval };
+        localStorage.setItem("results", JSON.stringify(approvedResults));
         resultsForApproval = {};
         document.getElementById("admin-status").textContent = "Results Approved!";
         document.getElementById("approval-signal").style.display = "none";
       }
     }
 
-    // Automatic calculator for each subject row.
-    function calculateTotal(subject) {
-      let test1 = Number(document.getElementById(subject + "_test1").value) || 0;
-      let test2 = Number(document.getElementById(subject + "_test2").value) || 0;
-      let exam = Number(document.getElementById(subject + "_exam").value) || 0;
-      let total = test1 + test2 + exam;
-      let average = total / 3;
-      document.getElementById(subject + "_total").textContent = total;
-      document.getElementById(subject + "_average").textContent = average.toFixed(2);
+    // Teacher function – submit both English and Maths results
+    function submitResultsTeacher() {
+      if (currentUser !== "teach1" && currentUser !== "teach2") {
+        alert("Only Teachers can submit results!");
+        return;
+      }
+      let student = document.getElementById("student_name").value;
+      // English results
+      let eng_test1 = Number(document.getElementById("eng_test1").value);
+      let eng_test2 = Number(document.getElementById("eng_test2").value);
+      let eng_exam = Number(document.getElementById("eng_exam").value);
+      let eng_total = eng_test1 + eng_test2 + eng_exam;
+      let eng_average = eng_total / 3;
+      // Maths results
+      let maths_test1 = Number(document.getElementById("maths_test1").value);
+      let maths_test2 = Number(document.getElementById("maths_test2").value);
+      let maths_exam = Number(document.getElementById("maths_exam").value);
+      let maths_total = maths_test1 + maths_test2 + maths_exam;
+      let maths_average = maths_total / 3;
+      
+      results[student] = {
+        eng: { test1: eng_test1, test2: eng_test2, exam: eng_exam, total: eng_total, average: eng_average },
+        maths: { test1: maths_test1, test2: maths_test2, exam: maths_exam, total: maths_total, average: maths_average }
+      };
+      resultsForApproval[student] = results[student];
+      localStorage.setItem("results", JSON.stringify(results));
+      document.getElementById("teacher-status").textContent = "Results Submitted!";
+      if (document.getElementById("approval-signal")) {
+        document.getElementById("approval-signal").style.display = "inline";
+      }
     }
 
-    // Student functions.
+    // Student functions
     function checkResult() {
       let studentName = document.getElementById("student_id").value;
       let resultsData = JSON.parse(localStorage.getItem("results")) || {};
@@ -289,21 +287,22 @@
         alert("No result found!");
         return;
       }
-      // Populate the result table.
       let r = resultsData[studentName];
-      // For simplicity, assume r.eng and r.maths exist; if not, default to zeros.
-      document.getElementById("eng_test1").value = r.eng ? r.eng.test1 : 0;
-      document.getElementById("eng_test2").value = r.eng ? r.eng.test2 : 0;
-      document.getElementById("eng_exam").value = r.eng ? r.eng.exam : 0;
-      calculateTotal("eng");
-      document.getElementById("maths_test1").value = r.maths ? r.maths.test1 : 0;
-      document.getElementById("maths_test2").value = r.maths ? r.maths.test2 : 0;
-      document.getElementById("maths_exam").value = r.maths ? r.maths.exam : 0;
-      calculateTotal("maths");
+      // Populate English result display
+      document.getElementById("eng_test1_out").textContent = r.eng ? r.eng.test1 : 0;
+      document.getElementById("eng_test2_out").textContent = r.eng ? r.eng.test2 : 0;
+      document.getElementById("eng_exam_out").textContent = r.eng ? r.eng.exam : 0;
+      document.getElementById("eng_total_out").textContent = r.eng ? r.eng.total : 0;
+      document.getElementById("eng_average_out").textContent = r.eng ? r.eng.average.toFixed(2) : "0.00";
+      // Populate Maths result display
+      document.getElementById("maths_test1_out").textContent = r.maths ? r.maths.test1 : 0;
+      document.getElementById("maths_test2_out").textContent = r.maths ? r.maths.test2 : 0;
+      document.getElementById("maths_exam_out").textContent = r.maths ? r.maths.exam : 0;
+      document.getElementById("maths_total_out").textContent = r.maths ? r.maths.total : 0;
+      document.getElementById("maths_average_out").textContent = r.maths ? r.maths.average.toFixed(2) : "0.00";
       document.getElementById("result-table").style.display = "table";
     }
 
-    // Print result using jsPDF; the student must provide a valid scratch PIN.
     function printResult() {
       let enteredPin = document.getElementById("scratch_card").value;
       let pins = JSON.parse(localStorage.getItem("pins")) || [];
@@ -311,10 +310,10 @@
         alert("Invalid or unused PIN! Please enter a correct PIN.");
         return;
       }
-      // Remove used PIN to prevent reuse.
-      pins = pins.filter((pin) => pin !== Number(enteredPin));
+      // Remove the used PIN
+      pins = pins.filter(pin => pin !== Number(enteredPin));
       localStorage.setItem("pins", JSON.stringify(pins));
-      // Generate PDF.
+      // Generate PDF using jsPDF
       const { jsPDF } = window.jspdf;
       let doc = new jsPDF();
       let studentName = document.getElementById("student_id").value;
@@ -324,24 +323,12 @@
       } else {
         let r = resultsData[studentName];
         doc.text("Student Result", 10, 10);
-        if (r.eng) {
-          doc.text(
-            `English - Test1: ${r.eng.test1}, Test2: ${r.eng.test2}, Exam: ${r.eng.exam}, Total: ${r.eng.total}, Avg: ${r.eng.average.toFixed(2)}`,
-            10,
-            20
-          );
-        }
-        if (r.maths) {
-          doc.text(
-            `Maths - Test1: ${r.maths.test1}, Test2: ${r.maths.test2}, Exam: ${r.maths.exam}, Total: ${r.maths.total}, Avg: ${r.maths.average.toFixed(2)}`,
-            10,
-            30
-          );
-        }
+        doc.text(`English - Test1: ${r.eng.test1}, Test2: ${r.eng.test2}, Exam: ${r.eng.exam}, Total: ${r.eng.total}, Avg: ${r.eng.average.toFixed(2)}`, 10, 20);
+        doc.text(`Maths - Test1: ${r.maths.test1}, Test2: ${r.maths.test2}, Exam: ${r.maths.exam}, Total: ${r.maths.total}, Avg: ${r.maths.average.toFixed(2)}`, 10, 30);
       }
       doc.save("Student_Result.pdf");
     }
   </script>
 </body>
 </html>
-     
+  
