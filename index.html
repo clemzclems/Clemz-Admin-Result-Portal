@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>School Result System | Clemz Clems Graphics Works</title>
+    <title>Student Result Portal | Clemz Clems Graphics Works</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
@@ -31,6 +31,7 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             color: black;
+            display: none;
         }
 
         input, button {
@@ -65,172 +66,151 @@
             padding: 10px;
             text-align: center;
         }
-
-        .logout-btn {
-            background: red;
-        }
-
-        .hidden {
-            display: none;
-        }
     </style>
 </head>
 <body>
 
-    <header>School Result System | Clemz Clems Graphics Works</header>
+    <header>Student Result Portal | Clemz Clems Graphics Works</header>
 
-    <div class="container">
-        <h2>Select User Role</h2>
-        <button onclick="showAdmin()">Admin</button>
-        <button onclick="showTeacher()">Teacher</button>
-        <button onclick="showStudent()">Student</button>
+    <div class="container" id="role-selection" style="display:block;">
+        <h2>Login as</h2>
+        <button onclick="login('admin')">Admin</button>
+        <button onclick="login('teacher')">Teacher</button>
+        <button onclick="login('student')">Student</button>
     </div>
 
-    <!-- Admin Dashboard -->
-    <div class="container hidden" id="admin-panel">
-        <h2>Admin Panel</h2>
-        <input type="text" id="admin_username" placeholder="Admin Username">
-        <input type="password" id="admin_password" placeholder="Password">
-        <button onclick="adminLogin()">Login</button>
-
-        <div id="admin-actions" class="hidden">
-            <h3>Add Student Result</h3>
-            <input type="text" id="student_name" placeholder="Student Name">
-            <input type="text" id="math_score" placeholder="Math Score">
-            <input type="text" id="eng_score" placeholder="English Score">
-            <button onclick="addResult()">Add Result</button>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="container">
+        <h2>Admin Dashboard</h2>
+        <button onclick="generatePins()">Generate Scratch Card PINs</button>
+        <button onclick="viewPins()">View Generated PINs</button>
+        <button onclick="approveResults()">Approve Teacher Results</button>
+        <button onclick="resetPins()">Reset PINs</button>
+        <button onclick="logout()">Navigate Out</button>
+        <p id="admin-status"></p>
+        <ul id="pin-list"></ul>
     </div>
 
-    <!-- Teacher Dashboard -->
-    <div class="container hidden" id="teacher-panel">
-        <h2>Teacher Panel</h2>
-        <input type="text" id="teacher_username" placeholder="Teacher Username">
-        <input type="password" id="teacher_password" placeholder="Password">
-        <button onclick="teacherLogin()">Login</button>
-
-        <div id="teacher-actions" class="hidden">
-            <h3>Update Student Result</h3>
-            <input type="text" id="update_student" placeholder="Student Name">
-            <input type="text" id="update_math" placeholder="New Math Score">
-            <input type="text" id="update_eng" placeholder="New English Score">
-            <button onclick="updateResult()">Update Result</button>
-            <button class="logout-btn" onclick="logout()">Logout</button>
-        </div>
+    <!-- Teacher Panel -->
+    <div id="teacher-panel" class="container">
+        <h2>Teacher Dashboard</h2>
+        <input type="text" id="student_name" placeholder="Enter Student Name">
+        <input type="number" id="math" placeholder="Math Score">
+        <input type="number" id="eng" placeholder="English Score">
+        <button onclick="submitResults()">Submit Results</button>
+        <button onclick="logout()">Navigate Out</button>
+        <p id="teacher-status"></p>
     </div>
 
-    <!-- Student Dashboard -->
-    <div class="container hidden" id="student-panel">
+    <!-- Student Panel -->
+    <div id="student-panel" class="container">
         <h2>Check Student Result</h2>
         <input type="text" id="student_id" placeholder="Enter Student Name">
-        <input type="text" id="student_pin" placeholder="Enter PIN">
+        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
         <button onclick="checkResult()">Check Result</button>
+        <button onclick="printPDF()">Print Result</button>
 
-        <table id="result-table" class="hidden">
+        <table id="result-table" style="display:none;">
             <thead>
                 <tr>
                     <th>Subject</th><th>Score</th>
                 </tr>
             </thead>
-            <tbody>
-                <tr><td>Math</td><td id="math_score_display"></td></tr>
-                <tr><td>English</td><td id="eng_score_display"></td></tr>
-            </tbody>
+            <tbody id="result-body"></tbody>
         </table>
-        <button id="print-btn" class="hidden" onclick="printResult()">Print Result</button>
-        <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
     <script>
-        let results = {}; 
+        let currentUser = "";
+        let results = {};
+        let approvedResults = {};
 
-        function generatePin() {
-            return Math.floor(1000 + Math.random() * 9000);
+        function login(user) {
+            currentUser = user;
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            document.getElementById(`${user}-panel`).style.display = "block";
         }
 
-        function showAdmin() {
-            document.getElementById("admin-panel").classList.remove("hidden");
-            document.getElementById("teacher-panel").classList.add("hidden");
-            document.getElementById("student-panel").classList.add("hidden");
+        function generatePins() {
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+            let newPin = Math.floor(100000 + Math.random() * 900000);
+            pins.push(newPin);
+            localStorage.setItem("pins", JSON.stringify(pins));
+            document.getElementById("admin-status").textContent = "New PIN Generated: " + newPin;
         }
 
-        function showTeacher() {
-            document.getElementById("teacher-panel").classList.remove("hidden");
-            document.getElementById("admin-panel").classList.add("hidden");
-            document.getElementById("student-panel").classList.add("hidden");
+        function viewPins() {
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+            let pinList = document.getElementById("pin-list");
+            pinList.innerHTML = "";
+            pins.forEach(pin => {
+                let li = document.createElement("li");
+                li.textContent = pin;
+                pinList.appendChild(li);
+            });
         }
 
-        function showStudent() {
-            document.getElementById("student-panel").classList.remove("hidden");
-            document.getElementById("admin-panel").classList.add("hidden");
-            document.getElementById("teacher-panel").classList.add("hidden");
+        function resetPins() {
+            localStorage.removeItem("pins");
+            document.getElementById("pin-list").innerHTML = "";
+            document.getElementById("admin-status").textContent = "All PINs Reset!";
         }
 
-        function adminLogin() {
-            let user = document.getElementById("admin_username").value;
-            let pass = document.getElementById("admin_password").value;
-            if (user === "admin" && pass === "admin123") {
-                document.getElementById("admin-actions").classList.remove("hidden");
-            } else {
-                alert("Invalid Admin Credentials");
-            }
-        }
-
-        function teacherLogin() {
-            let user = document.getElementById("teacher_username").value;
-            let pass = document.getElementById("teacher_password").value;
-            if (user === "teacher" && pass === "teacher123") {
-                document.getElementById("teacher-actions").classList.remove("hidden");
-            } else {
-                alert("Invalid Teacher Credentials");
-            }
-        }
-
-        function addResult() {
+        function submitResults() {
             let student = document.getElementById("student_name").value;
-            let math = document.getElementById("math_score").value;
-            let eng = document.getElementById("eng_score").value;
-            let pin = generatePin();
-            results[student] = { math, eng, pin };
-            alert(`Result Added! PIN: ${pin}`);
+            let math = Number(document.getElementById("math").value);
+            let eng = Number(document.getElementById("eng").value);
+
+            results[student] = { math, eng };
+            document.getElementById("teacher-status").textContent = "Results Submitted for Approval!";
         }
 
-        function updateResult() {
-            let student = document.getElementById("update_student").value;
-            let math = document.getElementById("update_math").value;
-            let eng = document.getElementById("update_eng").value;
-            if (results[student]) {
-                results[student].math = math;
-                results[student].eng = eng;
-                alert("Result Updated!");
-            } else {
-                alert("Student Not Found!");
-            }
+        function approveResults() {
+            approvedResults = { ...results };
+            document.getElementById("admin-status").textContent = "All Results Approved!";
         }
 
         function checkResult() {
-            let student = document.getElementById("student_id").value;
-            let pin = document.getElementById("student_pin").value;
-            if (results[student] && results[student].pin == pin) {
-                document.getElementById("math_score_display").textContent = results[student].math;
-                document.getElementById("eng_score_display").textContent = results[student].eng;
-                document.getElementById("result-table").classList.remove("hidden");
-                document.getElementById("print-btn").classList.remove("hidden");
-            } else {
-                alert("Invalid Student or PIN!");
+            let studentName = document.getElementById("student_id").value;
+            let enteredPin = document.getElementById("scratch_card").value;
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+
+            if (!pins.includes(parseInt(enteredPin)) || !approvedResults[studentName]) {
+                alert("Invalid PIN or Results Not Approved Yet!");
+                return;
             }
+
+            let result = approvedResults[studentName];
+            let tbody = document.getElementById("result-body");
+            tbody.innerHTML = `
+                <tr><td>Math</td><td>${result.math}</td></tr>
+                <tr><td>English</td><td>${result.eng}</td></tr>
+            `;
+            document.getElementById("result-table").style.display = "table";
         }
 
-        function printResult() {
+        function printPDF() {
             const { jsPDF } = window.jspdf;
             let doc = new jsPDF();
-            doc.text("Student Result - Clemz Clems Graphics Works", 20, 20);
-            doc.save("student_result.pdf");
+            doc.text("Student Result", 10, 10);
+
+            let studentName = document.getElementById("student_id").value;
+            let result = approvedResults[studentName];
+
+            if (result) {
+                doc.text(`Math: ${result.math}`, 10, 30);
+                doc.text(`English: ${result.eng}`, 10, 40);
+            } else {
+                doc.text("No result found", 10, 30);
+            }
+
+            doc.save("Student_Result.pdf");
         }
 
         function logout() {
-            location.reload();
+            currentUser = "";
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            document.getElementById("role-selection").style.display = "block";
         }
     </script>
 
