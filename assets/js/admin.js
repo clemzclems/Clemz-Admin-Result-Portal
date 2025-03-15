@@ -1,3 +1,4 @@
+<script>
 // Admin panel JavaScript functionalities
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -59,3 +60,4 @@ document.addEventListener("DOMContentLoaded", function () {
     const resetBtn = document.querySelector("button[data-action='resetPins']");
     if (resetBtn) resetBtn.addEventListener("click", resetPins);
 });
+</script>
