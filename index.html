@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Student Result Portal | Clemz Clems Graphics Works</title>
+    <title>Student Result Portal | Clemz Clems Graphics Works</title>
     
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -65,11 +65,15 @@
             padding: 10px;
             text-align: center;
         }
+
+        .logout-btn {
+            background: red;
+        }
     </style>
 </head>
 <body>
 
-    <header>Complete Student Result Portal</header>
+    <header>Student Result Portal | Clemz Clems Graphics Works</header>
 
     <div class="container">
         <h2>Login as</h2>
@@ -78,28 +82,10 @@
         <button onclick="login('student')">Student</button>
     </div>
 
-    <!-- Admin Panel -->
+    <!-- Admin Panel with Logout Button -->
     <div id="admin-panel" class="container" style="display:none;">
         <h2>Admin Dashboard</h2>
-        <button onclick="generatePins()">Generate Scratch Card PINs</button>
-        <button onclick="viewPins()">View Generated PINs</button>
-        <button onclick="approveResults()">Approve Teacher Results</button>
-        <button onclick="resetPins()">Reset PINs</button>
-        <button onclick="logout()">Navigate Out of Admin Dashboard</button>
-        <p id="admin-status"></p>
-        <ul id="pin-list"></ul>
-    </div>
-
-    <!-- Teacher Panel -->
-    <div id="teacher-panel" class="container" style="display:none;">
-        <h2>Teacher Dashboard</h2>
-        <input type="text" id="student_name" placeholder="Enter Student Name">
-        <input type="number" id="test1" placeholder="Test 1 Score">
-        <input type="number" id="test2" placeholder="Test 2 Score">
-        <input type="number" id="exam" placeholder="Exam Score">
-        <button onclick="submitResults()">Submit Results</button>
-        <button onclick="logout()">Navigate Out of Teacher Dashboard</button>
-        <p id="teacher-status"></p>
+        <button class="logout-btn" onclick="navigateOut()">Logout</button>
     </div>
 
     <!-- Student Panel -->
@@ -112,25 +98,39 @@
         <table id="result-table" style="display:none;">
             <thead>
                 <tr>
-                    <th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
+                    <th>Subject</th><th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td id="res_test1"></td>
-                    <td id="res_test2"></td>
-                    <td id="res_exam"></td>
-                    <td id="res_total"></td>
-                    <td id="res_average"></td>
+                    <td>Math</td>
+                    <td id="math_test1"></td>
+                    <td id="math_test2"></td>
+                    <td id="math_exam"></td>
+                    <td id="math_total"></td>
+                    <td id="math_average"></td>
+                </tr>
+                <tr>
+                    <td>Eng</td>
+                    <td id="eng_test1"></td>
+                    <td id="eng_test2"></td>
+                    <td id="eng_exam"></td>
+                    <td id="eng_total"></td>
+                    <td id="eng_average"></td>
                 </tr>
             </tbody>
         </table>
+        <button id="print-btn" onclick="printResult()" style="display:none;">Print Result</button>
     </div>
 
     <script>
         let currentUser = "";
-        let results = {};
-        let approvedResults = {};
+        let approvedResults = {
+            "JohnDoe": {
+                "math": { test1: 15, test2: 18, exam: 50, total: 83, average: 27.67 },
+                "eng": { test1: 17, test2: 20, exam: 48, total: 85, average: 28.33 }
+            }
+        };
 
         function login(user) {
             currentUser = user;
@@ -138,72 +138,10 @@
             document.getElementById(`${user}-panel`).style.display = "block";
         }
 
-        function generatePins() {
-            if (currentUser !== "admin") {
-                alert("Only Admin Can Generate PINs!");
-                return;
-            }
-
-            let pins = JSON.parse(localStorage.getItem("pins")) || [];
-            let newPin = Math.floor(100000 + Math.random() * 900000);
-            pins.push(newPin);
-            localStorage.setItem("pins", JSON.stringify(pins));
-
-            document.getElementById("admin-status").textContent = "New PIN Generated: " + newPin;
-        }
-
-        function viewPins() {
-            if (currentUser !== "admin") {
-                alert("Only Admin Can View PINs!");
-                return;
-            }
-
-            let pins = JSON.parse(localStorage.getItem("pins")) || [];
-            let pinList = document.getElementById("pin-list");
-            pinList.innerHTML = "";
-            pins.forEach(pin => {
-                let li = document.createElement("li");
-                li.textContent = pin;
-                pinList.appendChild(li);
-            });
-        }
-
-        function resetPins() {
-            if (currentUser !== "admin") {
-                alert("Only Admin Can Reset PINs!");
-                return;
-            }
-
-            localStorage.removeItem("pins");
-            document.getElementById("pin-list").innerHTML = "";
-            document.getElementById("admin-status").textContent = "All PINs Reset!";
-        }
-
-        function submitResults() {
-            if (currentUser !== "teacher") {
-                alert("Only Teachers Can Submit Results!");
-                return;
-            }
-
-            let student = document.getElementById("student_name").value;
-            let test1 = Number(document.getElementById("test1").value);
-            let test2 = Number(document.getElementById("test2").value);
-            let exam = Number(document.getElementById("exam").value);
-            let total = test1 + test2 + exam;
-            let average = total / 3;
-
-            results[student] = { test1, test2, exam, total, average };
-            document.getElementById("teacher-status").textContent = "Results Submitted for Approval!";
-        }
-
-        function approveResults() {
-            if (currentUser !== "admin") {
-                alert("Only Admin Can Approve Results!");
-                return;
-            }
-
-            approvedResults = { ...results };
-            document.getElementById("admin-status").textContent = "All Results Approved!";
+        function navigateOut() {
+            currentUser = "";
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            alert("Logged out successfully!"); // No unnecessary show effect
         }
 
         function checkResult() {
@@ -212,28 +150,39 @@
                 return;
             }
 
-            let enteredPin = document.getElementById("scratch_card").value;
             let studentName = document.getElementById("student_id").value;
-            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+            let enteredPin = document.getElementById("scratch_card").value;
+            let pins = ["123456", "654321"];  // Sample valid PINs
 
-            if (!pins.includes(parseInt(enteredPin)) || !approvedResults[studentName]) {
-                alert("Invalid PIN or Results Not Approved Yet!");
+            if (!pins.includes(enteredPin) || !approvedResults[studentName]) {
+                alert("Invalid PIN or Results Not Found!");
                 return;
             }
 
-            let result = approvedResults[studentName];
-            document.getElementById("res_test1").textContent = result.test1;
-            document.getElementById("res_test2").textContent = result.test2;
-            document.getElementById("res_exam").textContent = result.exam;
-            document.getElementById("res_total").textContent = result.total;
-            document.getElementById("res_average").textContent = result.average.toFixed(2);
+            let math = approvedResults[studentName]["math"];
+            let eng = approvedResults[studentName]["eng"];
+
+            document.getElementById("math_test1").textContent = math.test1;
+            document.getElementById("math_test2").textContent = math.test2;
+            document.getElementById("math_exam").textContent = math.exam;
+            document.getElementById("math_total").textContent = math.total;
+            document.getElementById("math_average").textContent = math.average.toFixed(2);
+
+            document.getElementById("eng_test1").textContent = eng.test1;
+            document.getElementById("eng_test2").textContent = eng.test2;
+            document.getElementById("eng_exam").textContent = eng.exam;
+            document.getElementById("eng_total").textContent = eng.total;
+            document.getElementById("eng_average").textContent = eng.average.toFixed(2);
+
             document.getElementById("result-table").style.display = "table";
+            document.getElementById("print-btn").style.display = "block";
         }
 
-        function logout() {
-            currentUser = "";
-            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
-            document.querySelector(".container").style.display = "block";
+        function printResult() {
+            const { jsPDF } = window.jspdf;
+            let doc = new jsPDF();
+            doc.text("Student Result - Clemz Clems Graphics Works", 20, 20);
+            doc.save("student_result.pdf");
         }
     </script>
 
