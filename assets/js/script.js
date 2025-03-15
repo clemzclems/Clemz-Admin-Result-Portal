@@ -1,3 +1,4 @@
+<script>
 // General script for user interactions
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -47,3 +48,4 @@ document.addEventListener("DOMContentLoaded", function () {
 
     document.querySelector("button[onclick='downloadPDF()']").addEventListener("click", downloadPDF);
 });
+</script>
