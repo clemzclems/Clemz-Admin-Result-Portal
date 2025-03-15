@@ -3,63 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Result Portal</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Student Portal</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
+        button { margin: 10px; padding: 10px; }
+        #result-table { display: none; margin: auto; border-collapse: collapse; width: 50%; }
+        #result-table, th, td { border: 1px solid black; padding: 8px; }
+    </style>
 </head>
 <body>
 
-    <!-- Login Section -->
-    <section class="login-section">
-        <button id="login-btn">Login</button>
-    </section>
+    <h1>Student Portal</h1>
 
-    <header>
-        <h1>Student Result Portal</h1>
-    </header>
+    <!-- Google Login Button -->
+    <div id="google-login-btn"></div>
+    <p id="user-info"></p>
 
-    <!-- Admin Panel -->
-    <section class="admin-panel">
-        <h2>Admin Controls</h2>
-        <button data-action="generatePins">Generate Student Scratch PINs</button>
-        <button data-action="approveResults">Approve Teacher Result Entries</button>
-        <button data-action="viewLogs">View Student Access Logs</button>
-        <button data-action="resetPins">Reset Expired PINs</button>
-        
-        <div id="admin-status">
-            <ul id="pin-list"></ul>
-            <p id="approval-status"></p>
-            <p id="log-display"></p>
-            <p id="reset-status"></p>
-        </div>
-    </section>
+    <!-- Student PIN Generation -->
+    <button data-action="generatePins">Generate Scratch PINs</button>
+    <ul id="pin-list"></ul>
 
-    <!-- Student Result Section -->
-    <section class="result-section">
-        <h2>Check Student Result</h2>
-        <input type="text" id="student_id" placeholder="Enter Student ID">
-        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
-        <button data-action="checkResult">Check Result</button>
-        
-        <table id="result-table">
-            <thead>
-                <tr>
-                    <th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="test1"></td>
-                    <td id="test2"></td>
-                    <td id="exam"></td>
-                    <td id="total"></td>
-                    <td id="average"></td>
-                </tr>
-            </tbody>
-        </table>
+    <!-- Teacher Result Approval -->
+    <button data-action="approveResults">Approve Teacher Results</button>
+    <p id="approval-status"></p>
 
-        <button data-action="downloadPDF">Download PDF</button>
-    </section>
+    <!-- View Student Access Logs -->
+    <button data-action="viewLogs">View Student Logs</button>
+    <p id="log-display"></p>
 
-    <script src="script.js"></script>
+    <!-- Reset Expired PINs -->
+    <button data-action="resetPins">Reset Expired PINs</button>
+    <p id="reset-status"></p>
+
+    <!-- Student Result Checking -->
+    <h3>Check Your Result</h3>
+    <input type="text" id="student_id" placeholder="Enter Student ID">
+    <input type="text" id="scratch_card" placeholder="Enter PIN">
+    <button data-action="checkResult">Check Result</button>
+
+    <!-- Result Table -->
+    <table id="result-table">
+        <tr>
+            <th>Test 1</th> <th>Test 2</th> <th>Exam</th> <th>Total</th> <th>Average</th>
+        </tr>
+        <tr>
+            <td id="test1"></td> <td id="test2"></td> <td id="exam"></td> <td id="total"></td> <td id="average"></td>
+        </tr>
+    </table>
+
+    <!-- Download Result -->
+    <button data-action="downloadPDF">Download Result as PDF</button>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            console.log("Portal Loaded!");
+
+            // Google Login Functionality
+            function handleCredentialResponse(response) {
+                console.log("Google Login Response:", response);
+                alert("Google Login Successful!");
+
+                // Decode the JWT token
+                const user = JSON.parse(atob(response.credential.split(".")[1]));
+                alert("Welcome, " + user.name);
+                document.getElementById("user-info").textContent = "Logged in as: " + user.name;
+            }
+
+            // Initialize Google Sign-In
+            window.onload = function () {
+                google.accounts.id.initialize({
+                    client_id: "YOUR_GOOGLE_CLIENT_ID",
+                    callback: handleCredentialResponse
+                });
+
+                google.accounts.id.renderButton(
+                    document.getElementById("google-login-btn"),
+                    { theme: "outline", size: "large" }
+                );
+            };
+
+            // Generate Student PINs
+            function generatePins() {
+                alert("Generating new student scratch PINs...");
+                const pinList = document.getElementById("pin-list");
+                pinList.innerHTML = ""; // Clear previous pins
+
+                for (let i = 0; i < 5; i++) {
+                    const pin = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit PIN
+                    const listItem = document.createElement("li");
+                    listItem.textContent = pin;
+                    pinList.appendChild(listItem);
+                }
+            }
+
+            // Approve Teacher Results
+            function approveResults() {
+                alert("Approving teacher result entries...");
+                document.getElementById("approval-status").textContent = "All results have been approved!";
+            }
+
+            // View Student Access Logs
+            function viewLogs() {
+                alert("Fetching student access logs...");
+                document.getElementById("log-display").textContent = "Displaying student access logs...";
+            }
+
+            // Reset Expired PINs
+            function resetPins() {
+                alert("Resetting expired PINs...");
+                document.getElementById("reset-status").textContent = "Expired PINs have been reset!";
+            }
+
+            // Check Student Result
+            function checkResult() {
+                let studentID = document.getElementById("student_id").value;
+                let pin = document.getElementById("scratch_card").value;
+                let resultTable = document.getElementById("result-table");
+
+                if (studentID && pin) {
+                    alert("Fetching results for Student ID: " + studentID);
+                    resultTable.style.display = "table";
+
+                    // Example data
+                    let test1 = Math.floor(Math.random() * 100);
+                    let test2 = Math.floor(Math.random() * 100);
+                    let exam = Math.floor(Math.random() * 100);
+                    let total = test1 + test2 + exam;
+                    let average = (total / 3).toFixed(2);
+
+                    document.getElementById("test1").innerText = test1;
+                    document.getElementById("test2").innerText = test2;
+                    document.getElementById("exam").innerText = exam;
+                    document.getElementById("total").innerText = total;
+                    document.getElementById("average").innerText = average;
+                } else {
+                    alert("Please enter both Student ID and PIN.");
+                }
+            }
+
+            // Download Student Result as PDF
+            function downloadPDF() {
+                alert("Downloading result as PDF...");
+
+                if (typeof jsPDF === "undefined") {
+                    alert("Error: jsPDF library not found. Please check script inclusion.");
+                    return;
+                }
+
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+                doc.text("Student Results", 20, 20);
+                doc.text("Test 1: " + document.getElementById("test1").innerText, 20, 30);
+                doc.text("Test 2: " + document.getElementById("test2").innerText, 20, 40);
+                doc.text("Exam: " + document.getElementById("exam").innerText, 20, 50);
+                doc.text("Total: " + document.getElementById("total").innerText, 20, 60);
+                doc.text("Average: " + document.getElementById("average").innerText, 20, 70);
+                doc.save("student_result.pdf");
+            }
+
+            // Attach event listeners to buttons
+            document.querySelector("button[data-action='generatePins']").addEventListener("click", generatePins);
+            document.querySelector("button[data-action='approveResults']").addEventListener("click", approveResults);
+            document.querySelector("button[data-action='viewLogs']").addEventListener("click", viewLogs);
+            document.querySelector("button[data-action='resetPins']").addEventListener("click", resetPins);
+            document.querySelector("button[data-action='checkResult']").addEventListener("click", checkResult);
+            document.querySelector("button[data-action='downloadPDF']").addEventListener("click", downloadPDF);
+        });
+    </script>
 </body>
 </html>
