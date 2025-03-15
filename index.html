@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Student Result Portal</title>
+    <title>Student Result Portal</title>
 
     <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -14,192 +14,167 @@
             text-align: center;
             background: linear-gradient(to right, #ff758c, #ff7eb3, #ff85d8);
             color: white;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 15px;
-            font-size: 24px;
         }
         .container {
-            max-width: 600px;
-            margin: 20px auto;
+            max-width: 700px;
+            margin: auto;
             background: white;
             padding: 20px;
             border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             color: black;
-        }
-        input, button {
-            width: 80%;
-            padding: 10px;
-            margin: 10px 0;
-            border-radius: 5px;
-            border: 1px solid #ccc;
         }
         button {
             background: #008CBA;
             color: white;
+            padding: 10px;
             cursor: pointer;
-        }
-        button:hover {
-            background: #005f7a;
+            border: none;
+            margin: 5px;
         }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
         }
         table, th, td {
             border: 1px solid black;
-        }
-        th, td {
             padding: 10px;
             text-align: center;
         }
     </style>
+
+    <script>
+        let currentUser = "";
+        let results = {};
+        let approvedResults = {};
+        let pins = JSON.parse(localStorage.getItem("pins")) || [];
+
+        function handleLogin(response) {
+            const user = response.credential;
+            currentUser = JSON.parse(atob(user.split(".")[1])).email;
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            
+            if (currentUser.includes("admin")) {
+                document.getElementById("admin-panel").style.display = "block";
+            } else if (currentUser.includes("teacher")) {
+                document.getElementById("teacher-panel").style.display = "block";
+            } else {
+                document.getElementById("student-panel").style.display = "block";
+            }
+        }
+
+        function logout() {
+            currentUser = "";
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            document.getElementById("login-section").style.display = "block";
+        }
+
+        function generatePins() {
+            let newPin = Math.floor(100000 + Math.random() * 900000);
+            let timestamp = new Date().toLocaleString();
+            pins.push({ pin: newPin, timestamp });
+            localStorage.setItem("pins", JSON.stringify(pins));
+            alert("New PIN Generated: " + newPin);
+        }
+
+        function submitResults() {
+            if (currentUser.includes("teacher")) {
+                let student = document.getElementById("student_name").value;
+                let subjects = ["English", "Mathematics", "Science", "Social", "Civic", "Computer", "Agric", "Home", "PHE", "CRS", "Arts"];
+                let total = 0;
+
+                results[student] = {};
+                subjects.forEach(subj => {
+                    let ca1 = Number(document.getElementById(subj + "_ca1").value);
+                    let ca2 = Number(document.getElementById(subj + "_ca2").value);
+                    let exam = Number(document.getElementById(subj + "_exam").value);
+                    let subjectTotal = ca1 + ca2 + exam;
+                    total += subjectTotal;
+
+                    let grade, comment;
+                    if (subjectTotal >= 70) { grade = "A"; comment = "Excellent"; }
+                    else if (subjectTotal >= 60) { grade = "B"; comment = "Very Good"; }
+                    else if (subjectTotal >= 50) { grade = "C"; comment = "Good"; }
+                    else if (subjectTotal >= 40) { grade = "D"; comment = "Pass"; }
+                    else { grade = "F"; comment = "Fail"; }
+
+                    results[student][subj] = { ca1, ca2, exam, subjectTotal, grade, comment };
+                });
+
+                results[student]["total"] = total;
+                results[student]["average"] = (total / 11).toFixed(2);
+                alert("Results Submitted for Approval");
+            }
+        }
+
+        function approveResults() {
+            if (currentUser.includes("admin")) {
+                approvedResults = { ...results };
+                alert("All Results Approved!");
+            }
+        }
+
+        function checkResult() {
+            let enteredPin = document.getElementById("scratch_card").value;
+            let studentName = document.getElementById("student_id").value;
+
+            if (!pins.some(p => p.pin == enteredPin)) {
+                alert("Invalid PIN!");
+                return;
+            }
+
+            if (!approvedResults[studentName]) {
+                alert("Result Not Approved Yet!");
+                return;
+            }
+
+            let studentResult = approvedResults[studentName];
+            let resultTable = `<tr><th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Grade</th><th>Comment</th></tr>`;
+            Object.keys(studentResult).forEach(subject => {
+                if (subject !== "total" && subject !== "average") {
+                    let { ca1, ca2, exam, subjectTotal, grade, comment } = studentResult[subject];
+                    resultTable += `<tr><td>${subject}</td><td>${ca1}</td><td>${ca2}</td><td>${exam}</td><td>${subjectTotal}</td><td>${grade}</td><td>${comment}</td></tr>`;
+                }
+            });
+            resultTable += `<tr><th colspan="4">Total</th><th>${studentResult.total}</th><th colspan="2">Average: ${studentResult.average}</th></tr>`;
+
+            document.getElementById("result-table").innerHTML = resultTable;
+        }
+    </script>
 </head>
 <body>
 
-<header>Student Result Portal</header>
-
-<!-- Login Section -->
-<div class="container" id="login-container">
-    <h2>Login</h2>
-    <div id="g_id_onload"
-         data-client_id="766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com"
-         data-context="signin"
-         data-callback="handleCredentialResponse"
-         data-auto_prompt="false">
+    <div id="login-section">
+        <h2>Login</h2>
+        <div id="g_id_onload"
+            data-client_id="766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com"
+            data-callback="handleLogin">
+        </div>
+        <div class="g_id_signin" data-type="standard"></div>
     </div>
-    <div class="g_id_signin" data-type="standard"></div>
-</div>
 
-<!-- Admin Panel -->
-<div id="admin-panel" class="container" style="display:none;">
-    <h2>Admin Dashboard</h2>
-    <button onclick="viewTeacherResults()">View Teacher Results</button>
-    <button onclick="approveResults()">Approve Results</button>
-    <button onclick="generatePins()">Generate PINs</button>
-    <button onclick="viewPins()">View PINs</button>
-    <button onclick="logout()">Logout</button>
-    <p id="admin-status"></p>
-</div>
+    <div id="admin-panel" class="container" style="display:none;">
+        <h2>Admin Dashboard</h2>
+        <button onclick="generatePins()">Generate Scratch Card PIN</button>
+        <button onclick="approveResults()">Approve Results</button>
+        <button onclick="logout()">Logout</button>
+    </div>
 
-<!-- Teacher Panel -->
-<div id="teacher-panel" class="container" style="display:none;">
-    <h2>Teacher Dashboard</h2>
-    <input type="text" id="student_name" placeholder="Enter Student Name">
-    <table id="result-table">
-        <thead>
-            <tr><th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Average</th></tr>
-        </thead>
-        <tbody id="results-body"></tbody>
-    </table>
-    <button onclick="submitResults()">Submit Results</button>
-    <button onclick="logout()">Logout</button>
-</div>
+    <div id="teacher-panel" class="container" style="display:none;">
+        <h2>Teacher Dashboard</h2>
+        <input type="text" id="student_name" placeholder="Student Name">
+        <div id="subjects"></div>
+        <button onclick="submitResults()">Submit Results</button>
+        <button onclick="logout()">Logout</button>
+    </div>
 
-<!-- Student Panel -->
-<div id="student-panel" class="container" style="display:none;">
-    <h2>Check Student Result</h2>
-    <input type="text" id="student_id" placeholder="Enter Student Name">
-    <input type="text" id="scratch_card" placeholder="Enter PIN">
-    <button onclick="checkResult()">Check Result</button>
-    <table id="student-result-table" style="display:none;">
-        <thead><tr><th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Average</th></tr></thead>
-        <tbody id="student-results-body"></tbody>
-    </table>
-    <button onclick="logout()">Logout</button>
-</div>
-
-<script>
-    let currentUser = "";
-    let teacherResults = {};
-    let approvedResults = {};
-    let subjects = ["Mathematics", "English", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "Business Studies", "CRS", "Home Economics", "Computer Science", "Physical & Health Education"];
-
-    function handleCredentialResponse(response) {
-        let userData = JSON.parse(atob(response.credential.split('.')[1]));
-        let email = userData.email;
-
-        if (email.includes("admin")) {
-            currentUser = "admin";
-            showPanel("admin-panel");
-        } else if (email.includes("teacher")) {
-            currentUser = "teacher";
-            showPanel("teacher-panel");
-            loadSubjects();
-        } else {
-            currentUser = "student";
-            showPanel("student-panel");
-        }
-    }
-
-    function showPanel(panelId) {
-        document.querySelectorAll(".container").forEach(div => div.style.display = "none");
-        document.getElementById(panelId).style.display = "block";
-    }
-
-    function loadSubjects() {
-        let tbody = document.getElementById("results-body");
-        tbody.innerHTML = "";
-        subjects.forEach(sub => {
-            let row = `<tr>
-                <td>${sub}</td>
-                <td><input type="number" class="ca1"></td>
-                <td><input type="number" class="ca2"></td>
-                <td><input type="number" class="exam"></td>
-                <td class="total"></td>
-                <td class="average"></td>
-            </tr>`;
-            tbody.innerHTML += row;
-        });
-    }
-
-    function submitResults() {
-        let student = document.getElementById("student_name").value;
-        let rows = document.querySelectorAll("#results-body tr");
-
-        teacherResults[student] = [];
-
-        rows.forEach(row => {
-            let ca1 = Number(row.querySelector(".ca1").value);
-            let ca2 = Number(row.querySelector(".ca2").value);
-            let exam = Number(row.querySelector(".exam").value);
-            let total = ca1 + ca2 + exam;
-            let average = total / 3;
-
-            row.querySelector(".total").textContent = total;
-            row.querySelector(".average").textContent = average.toFixed(2);
-
-            teacherResults[student].push({ subject: row.cells[0].textContent, ca1, ca2, exam, total, average });
-        });
-
-        alert("Results Submitted for Admin Approval");
-    }
-
-    function viewTeacherResults() {
-        console.log("Pending Results:", teacherResults);
-        alert("Check Console for Teacher Results");
-    }
-
-    function approveResults() {
-        approvedResults = { ...teacherResults };
-        alert("Results Approved!");
-    }
-
-    function generatePins() {
-        let pin = Math.floor(100000 + Math.random() * 900000);
-        alert("Generated PIN: " + pin);
-    }
-
-    function logout() {
-        currentUser = "";
-        showPanel("login-container");
-    }
-</script>
+    <div id="student-panel" class="container" style="display:none;">
+        <h2>Check Results</h2>
+        <input type="text" id="student_id" placeholder="Enter Student Name">
+        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
+        <button onclick="checkResult()">Check Result</button>
+        <table id="result-table"></table>
+        <button onclick="logout()">Logout</button>
+    </div>
 
 </body>
 </html>
