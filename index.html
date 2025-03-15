@@ -5,46 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Portal</title>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; }
-        button { margin: 10px; padding: 10px; }
-        #result-table { display: none; margin: auto; border-collapse: collapse; width: 50%; }
-        #result-table, th, td { border: 1px solid black; padding: 8px; }
-    </style>
 </head>
 <body>
 
-    <h1>Student Portal</h1>
-
-    <!-- Google Login Button -->
+    <h2>Login with Google</h2>
     <div id="google-login-btn"></div>
     <p id="user-info"></p>
 
-    <!-- Student PIN Generation -->
-    <button data-action="generatePins">Generate Scratch PINs</button>
-    <ul id="pin-list"></ul>
-
-    <!-- Teacher Result Approval -->
-    <button data-action="approveResults">Approve Teacher Results</button>
-    <p id="approval-status"></p>
-
-    <!-- View Student Access Logs -->
-    <button data-action="viewLogs">View Student Logs</button>
-    <p id="log-display"></p>
-
-    <!-- Reset Expired PINs -->
-    <button data-action="resetPins">Reset Expired PINs</button>
-    <p id="reset-status"></p>
-
-    <!-- Student Result Checking -->
-    <h3>Check Your Result</h3>
-    <input type="text" id="student_id" placeholder="Enter Student ID">
+    <h2>Check Student Result</h2>
     <input type="text" id="scratch_card" placeholder="Enter PIN">
     <button data-action="checkResult">Check Result</button>
 
     <!-- Result Table -->
-    <table id="result-table">
+    <table id="result-table" border="1" style="display: none;">
         <tr>
             <th>Test 1</th> <th>Test 2</th> <th>Exam</th> <th>Total</th> <th>Average</th>
         </tr>
@@ -63,8 +36,7 @@
             // Google Login Functionality
             function handleCredentialResponse(response) {
                 console.log("Google Login Response:", response);
-                alert("Google Login Successful!");
-
+                
                 // Decode the JWT token
                 const user = JSON.parse(atob(response.credential.split(".")[1]));
                 alert("Welcome, " + user.name);
@@ -74,7 +46,7 @@
             // Initialize Google Sign-In
             window.onload = function () {
                 google.accounts.id.initialize({
-                    client_id: "YOUR_GOOGLE_CLIENT_ID",
+                    client_id: "766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com",
                     callback: handleCredentialResponse
                 });
 
@@ -84,46 +56,13 @@
                 );
             };
 
-            // Generate Student PINs
-            function generatePins() {
-                alert("Generating new student scratch PINs...");
-                const pinList = document.getElementById("pin-list");
-                pinList.innerHTML = ""; // Clear previous pins
-
-                for (let i = 0; i < 5; i++) {
-                    const pin = Math.floor(100000 + Math.random() * 900000); // Generate 6-digit PIN
-                    const listItem = document.createElement("li");
-                    listItem.textContent = pin;
-                    pinList.appendChild(listItem);
-                }
-            }
-
-            // Approve Teacher Results
-            function approveResults() {
-                alert("Approving teacher result entries...");
-                document.getElementById("approval-status").textContent = "All results have been approved!";
-            }
-
-            // View Student Access Logs
-            function viewLogs() {
-                alert("Fetching student access logs...");
-                document.getElementById("log-display").textContent = "Displaying student access logs...";
-            }
-
-            // Reset Expired PINs
-            function resetPins() {
-                alert("Resetting expired PINs...");
-                document.getElementById("reset-status").textContent = "Expired PINs have been reset!";
-            }
-
             // Check Student Result
             function checkResult() {
-                let studentID = document.getElementById("student_id").value;
                 let pin = document.getElementById("scratch_card").value;
                 let resultTable = document.getElementById("result-table");
 
-                if (studentID && pin) {
-                    alert("Fetching results for Student ID: " + studentID);
+                if (pin) {
+                    alert("Fetching results...");
                     resultTable.style.display = "table";
 
                     // Example data
@@ -139,7 +78,7 @@
                     document.getElementById("total").innerText = total;
                     document.getElementById("average").innerText = average;
                 } else {
-                    alert("Please enter both Student ID and PIN.");
+                    alert("Please enter a PIN.");
                 }
             }
 
@@ -148,7 +87,7 @@
                 alert("Downloading result as PDF...");
 
                 if (typeof jsPDF === "undefined") {
-                    alert("Error: jsPDF library not found. Please check script inclusion.");
+                    alert("Error: jsPDF library not found.");
                     return;
                 }
 
@@ -164,13 +103,10 @@
             }
 
             // Attach event listeners to buttons
-            document.querySelector("button[data-action='generatePins']").addEventListener("click", generatePins);
-            document.querySelector("button[data-action='approveResults']").addEventListener("click", approveResults);
-            document.querySelector("button[data-action='viewLogs']").addEventListener("click", viewLogs);
-            document.querySelector("button[data-action='resetPins']").addEventListener("click", resetPins);
             document.querySelector("button[data-action='checkResult']").addEventListener("click", checkResult);
             document.querySelector("button[data-action='downloadPDF']").addEventListener("click", downloadPDF);
         });
     </script>
+
 </body>
 </html>
