@@ -1,69 +1,105 @@
 <style>
 body {
     font-family: Arial, sans-serif;
-    background: #f4f4f9;
+    text-align: center;
+    background: #f4f4f4;
     margin: 0;
     padding: 0;
-    text-align: center;
 }
 
+/* Header Styling */
 header {
     background: #0073e6;
     color: white;
-    padding: 10px;
-    font-size: 24px;
+    padding: 15px;
+    font-size: 26px;
+    font-weight: bold;
+    text-transform: uppercase;
 }
 
+/* Main Section */
 section {
     background: white;
     padding: 20px;
     margin: 20px auto;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
     max-width: 600px;
 }
 
-h2 {
+/* Headings */
+h1, h2 {
     color: #333;
 }
 
+/* Navigation List */
+ul {
+    list-style: none;
+    padding: 0;
+}
+
+li {
+    display: inline;
+    margin: 10px;
+}
+
+/* Links */
+a {
+    text-decoration: none;
+    font-size: 18px;
+    color: blue;
+    font-weight: bold;
+}
+
+/* Buttons */
 button {
     background: #0073e6;
     color: white;
-    padding: 10px 15px;
+    padding: 12px 18px;
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    margin: 5px;
+    margin: 8px;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 button:hover {
     background: #005bb5;
 }
 
+/* Input Fields */
 input {
-    padding: 10px;
+    padding: 12px;
     margin: 10px;
-    width: 80%;
+    width: 85%;
     border: 1px solid #ccc;
     border-radius: 5px;
+    font-size: 16px;
 }
 
+/* Tables */
 table {
     width: 100%;
-    margin-top: 10px;
+    margin-top: 15px;
     border-collapse: collapse;
     display: none;
+    background: white;
 }
 
 th, td {
     border: 1px solid #ddd;
-    padding: 10px;
+    padding: 12px;
     text-align: center;
 }
 
 th {
     background: #0073e6;
     color: white;
+    font-size: 16px;
+}
+
+td {
+    background: #f9f9f9;
 }
 </style>
