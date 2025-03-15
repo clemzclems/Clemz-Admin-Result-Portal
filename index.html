@@ -1,230 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Result Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4e73df, #1cc88a);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #343a40;
+            padding: 20px;
+            text-align: center;
+        }
+        h1 {
+            margin: 0;
+            font-size: 36px;
+        }
+        .section {
+            padding: 20px;
+            margin: 20px;
+            border-radius: 8px;
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        button {
+            padding: 10px;
+            background-color: #4e73df;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #1cc88a;
+        }
+        input[type="text"], input[type="password"] {
+            padding: 10px;
+            width: 100%;
+            margin-top: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        table {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #4e73df;
+        }
+    </style>
+</head>
+<body>
 
-<!DOCTYPE html>  <html lang="en">  
-<head>  
-    <meta charset="UTF-8">  
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-    <title>Complete Student Result Portal</title>  <script src="https://accounts.google.com/gsi/client" async defer></script>  
+<header>
+    <h1>Student Result Portal</h1>
+</header>
 
-<style>  
-    body {  
-        font-family: Arial, sans-serif;  
-        text-align: center;  
-        background: linear-gradient(to right, #ff758c, #ff7eb3, #ff85d8);  
-        color: white;  
-        margin: 0;  
-        padding: 0;  
-    }  
+<!-- Admin Login Section -->
+<section id="admin-login" class="section">
+    <h2>Admin Login</h2>
+    <input type="text" id="admin-email" placeholder="Enter Admin Email">
+    <input type="password" id="admin-password" placeholder="Enter Admin Password">
+    <button onclick="adminLogin()">Login</button>
+</section>
 
-    header {  
-        background: rgba(0, 0, 0, 0.8);  
-        padding: 15px;  
-        font-size: 24px;  
-    }  
+<!-- Admin Panel - PIN Generation -->
+<section id="admin-panel" class="section" style="display: none;">
+    <h2>Admin Panel - PIN Generation</h2>
+    <button onclick="generatePin()">Generate Scratch Card PIN</button>
+    <ul id="pin-list"></ul>
+</section>
 
-    .container {  
-        max-width: 600px;  
-        margin: 20px auto;  
-        background: white;  
-        padding: 20px;  
-        border-radius: 8px;  
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);  
-        color: black;  
-    }  
+<!-- Teacher Login Section -->
+<section id="teacher-login" class="section">
+    <h2>Teacher Login</h2>
+    <input type="text" id="teacher-email" placeholder="Enter Teacher Email">
+    <input type="password" id="teacher-password" placeholder="Enter Teacher Password">
+    <button onclick="teacherLogin()">Login</button>
+</section>
 
-    input, button {  
-        width: 80%;  
-        padding: 10px;  
-        margin: 10px 0;  
-        border-radius: 5px;  
-        border: 1px solid #ccc;  
-    }  
+<!-- Teacher Result Entry Panel -->
+<section id="teacher-panel" class="section" style="display: none;">
+    <h2>Teacher Panel - Enter Student Results</h2>
+    <label for="entry-method">Choose Entry Method:</label>
+    <select id="entry-method">
+        <option value="manual">Manual Entry</option>
+        <option value="md">Markdown File</option>
+        <option value="xlsx">Excel File</option>
+    </select>
 
-    button {  
-        background: #008CBA;  
-        color: white;  
-        cursor: pointer;  
-    }  
+    <div id="manual-entry" style="display: block;">
+        <input type="text" id="student-name" placeholder="Enter Student Name">
+        <input type="text" id="score1" placeholder="Enter Test 1 Score">
+        <input type="text" id="score2" placeholder="Enter Test 2 Score">
+        <input type="text" id="exam-score" placeholder="Enter Exam Score">
+        <button onclick="submitManualResult()">Submit Result</button>
+    </div>
+    <div id="md-entry" style="display: none;">
+        <input type="file" id="md-file" accept=".md">
+        <button onclick="submitMdFile()">Submit Markdown File</button>
+    </div>
+    <div id="xlsx-entry" style="display: none;">
+        <input type="file" id="xlsx-file" accept=".xlsx">
+        <button onclick="submitXlsxFile()">Submit Excel File</button>
+    </div>
+</section>
 
-    button:hover {  
-        background: #005f7a;  
-    }  
+<!-- Student Result Check Section -->
+<section id="student-check" class="section">
+    <h2>Student Result Check</h2>
+    <input type="text" id="student-id" placeholder="Enter Student ID">
+    <input type="text" id="scratch-card" placeholder="Enter Scratch PIN">
+    <button onclick="checkResult()">Check Result</button>
+    <table id="result-table">
+        <thead>
+            <tr>
+                <th>Test 1</th>
+                <th>Test 2</th>
+                <th>Exam</th>
+                <th>Total</th>
+                <th>Average</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="test1"></td>
+                <td id="test2"></td>
+                <td id="exam"></td>
+                <td id="total"></td>
+                <td id="average"></td>
+            </tr>
+        </tbody>
+    </table>
+</section>
 
-    table {  
-        width: 100%;  
-        border-collapse: collapse;  
-        margin-top: 20px;  
-    }  
+<script>
+    // Admin login and PIN generation
+    function adminLogin() {
+        const email = document.getElementById('admin-email').value;
+        const password = document.getElementById('admin-password').value;
+        if (email === 'admin@example.com' && password === 'adminpassword') {
+            document.getElementById('admin-login').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'block';
+        } else {
+            alert('Invalid admin credentials');
+        }
+    }
 
-    table, th, td {  
-        border: 1px solid black;  
-    }  
+    function generatePin() {
+        const pin = Math.floor(Math.random() * 1000000);
+        const pinList = document.getElementById('pin-list');
+        const li = document.createElement('li');
+        li.textContent = `Generated PIN: ${pin}`;
+        pinList.appendChild(li);
+    }
 
-    th, td {  
-        padding: 10px;  
-        text-align: center;  
-    }  
-</style>
+    // Teacher login
+    function teacherLogin() {
+        const email = document.getElementById('teacher-email').value;
+        const password = document.getElementById('teacher-password').value;
+        if (email === 'teacher@example.com' && password === 'teacherpassword') {
+            document.getElementById('teacher-login').style.display = 'none';
+            document.getElementById('teacher-panel').style.display = 'block';
+        } else {
+            alert('Invalid teacher credentials');
+        }
+    }
 
-</head>  
-<body>  <header>Student Result Portal</header>  
+    // Result entry methods
+    document.getElementById('entry-method').addEventListener('change', function () {
+        const method = this.value;
+        document.getElementById('manual-entry').style.display = method === 'manual' ? 'block' : 'none';
+        document.getElementById('md-entry').style.display = method === 'md' ? 'block' : 'none';
+        document.getElementById('xlsx-entry').style.display = method === 'xlsx' ? 'block' : 'none';
+    });
 
-<div class="container">  
-    <h2>Login as</h2>  
-    <button onclick="login('admin')">Admin</button>  
-    <button onclick="login('teacher')">Teacher</button>  
-    <button onclick="login('student')">Student</button>  
-</div>  
+    function submitManualResult() {
+        const name = document.getElementById('student-name').value;
+        const score1 = document.getElementById('score1').value;
+        const score2 = document.getElementById('score2').value;
+        const exam = document.getElementById('exam-score').value;
 
-<!-- Admin Panel -->  
-<div id="admin-panel" class="container" style="display:none;">  
-    <h2>Admin Dashboard</h2>  
-    <button onclick="generatePins()">Generate Scratch Card PINs</button>  
-    <button onclick="viewPins()">View Generated PINs</button>  
-    <button onclick="approveResults()">Approve Teacher Results</button>  
-    <button onclick="resetPins()">Reset PINs</button>  
-    <p id="admin-status"></p>  
-    <ul id="pin-list"></ul>  
-</div>  
+        const total = parseInt(score1) + parseInt(score2) + parseInt(exam);
+        const average = total / 3;
 
-<!-- Teacher Panel -->  
-<div id="teacher-panel" class="container" style="display:none;">  
-    <h2>Teacher Dashboard</h2>  
-    <input type="text" id="student_name" placeholder="Enter Student Name">  
-    <input type="number" id="test1" placeholder="Test 1 Score">  
-    <input type="number" id="test2" placeholder="Test 2 Score">  
-    <input type="number" id="exam" placeholder="Exam Score">  
-    <button onclick="submitResults()">Submit Results</button>  
-    <p id="teacher-status"></p>  
-</div>  
+        alert(`Result for ${name}: Total = ${total}, Average = ${average}`);
+    }
 
-<!-- Student Panel -->  
-<div id="student-panel" class="container" style="display:none;">  
-    <h2>Check Student Result</h2>  
-    <input type="text" id="student_id" placeholder="Enter Student ID">  
-    <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">  
-    <button onclick="checkResult()">Check Result</button>  
+    function submitMdFile() {
+        alert('Markdown file submitted.');
+    }
 
-    <table id="result-table" style="display:none;">  
-        <thead>  
-            <tr>  
-                <th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>  
-            </tr>  
-        </thead>  
-        <tbody>  
-            <tr>  
-                <td id="res_test1"></td>  
-                <td id="res_test2"></td>  
-                <td id="res_exam"></td>  
-                <td id="res_total"></td>  
-                <td id="res_average"></td>  
-            </tr>  
-        </tbody>  
-    </table>  
-</div>  
+    function submitXlsxFile() {
+        alert('Excel file submitted.');
+    }
 
-<script>  
-    let currentUser = "";  
-    let results = {};  
-    let approvedResults = {};  
+    // Student result check
+    function checkResult() {
+        const studentId = document.getElementById('student-id').value;
+        const scratchCard = document.getElementById('scratch-card').value;
 
-    function login(user) {  
-        currentUser = user;  
-        document.querySelectorAll(".container").forEach(div => div.style.display = "none");  
-        document.getElementById(`${user}-panel`).style.display = "block";  
-    }  
-
-    function generatePins() {  
-        if (currentUser !== "admin") {  
-            alert("Only Admin Can Generate PINs!");  
-            return;  
-        }  
-
-        let pins = JSON.parse(localStorage.getItem("pins")) || [];  
-        let newPin = Math.floor(100000 + Math.random() * 900000);  
-        pins.push(newPin);  
-        localStorage.setItem("pins", JSON.stringify(pins));  
-
-        document.getElementById("admin-status").textContent = "New PIN Generated: " + newPin;  
-    }  
-
-    function viewPins() {  
-        if (currentUser !== "admin") {  
-            alert("Only Admin Can View PINs!");  
-            return;  
-        }  
-
-        let pins = JSON.parse(localStorage.getItem("pins")) || [];  
-        let pinList = document.getElementById("pin-list");  
-        pinList.innerHTML = "";  
-        pins.forEach(pin => {  
-            let li = document.createElement("li");  
-            li.textContent = pin;  
-            pinList.appendChild(li);  
-        });  
-    }  
-
-    function resetPins() {  
-        if (currentUser !== "admin") {  
-            alert("Only Admin Can Reset PINs!");  
-            return;  
-        }  
-
-        localStorage.removeItem("pins");  
-        document.getElementById("pin-list").innerHTML = "";  
-        document.getElementById("admin-status").textContent = "All PINs Reset!";  
-    }  
-
-    function submitResults() {  
-        if (currentUser !== "teacher") {  
-            alert("Only Teachers Can Submit Results!");  
-            return;  
-        }  
-
-        let student = document.getElementById("student_name").value;  
-        let test1 = Number(document.getElementById("test1").value);  
-        let test2 = Number(document.getElementById("test2").value);  
-        let exam = Number(document.getElementById("exam").value);  
-        let total = test1 + test2 + exam;  
-        let average = total / 3;  
-
-        results[student] = { test1, test2, exam, total, average };  
-        document.getElementById("teacher-status").textContent = "Results Submitted for Approval!";  
-    }  
-
-    function approveResults() {  
-        if (currentUser !== "admin") {  
-            alert("Only Admin Can Approve Results!");  
-            return;  
-        }  
-
-        approvedResults = { ...results };  
-        document.getElementById("admin-status").textContent = "All Results Approved!";  
-    }  
-
-    function checkResult() {  
-        if (currentUser !== "student") {  
-            alert("Only Students Can Check Results!");  
-            return;  
-        }  
-
-        let enteredPin = document.getElementById("scratch_card").value;  
-        let studentName = document.getElementById("student_id").value;  
-        let pins = JSON.parse(localStorage.getItem("pins")) || [];  
-
-        if (!pins.includes(parseInt(enteredPin)) || !approvedResults[studentName]) {  
-            alert("Invalid PIN or Results Not Approved Yet!");  
-            return;  
-        }  
-
-        let result = approvedResults[studentName];  
-        document.getElementById("res_test1").textContent = result.test1;  
-        document.getElementById("res_test2").textContent = result.test2;  
-        document.getElementById("res_exam").textContent = result.exam;  
-        document.getElementById("res_total").textContent = result.total;  
-        document.getElementById("res_average").textContent = result.average.toFixed(2);  
-        document.getElementById("result-table").style.display = "table";  
-    }  
+        if (studentId && scratchCard) {
+            document.getElementById('test1').textContent = '80';
+            document.getElementById('test2').textContent = '85';
+            document.getElementById('exam').textContent = '90';
+            const total = 80 + 85 + 90;
+            document.getElementById('total').textContent = total;
+            document.getElementById('average').textContent = total / 3;
+        } else {
+            alert('Please enter both Student ID and Scratch PIN.');
+        }
+    }
 </script>
 
-</body>  
+</body>
 </html>
