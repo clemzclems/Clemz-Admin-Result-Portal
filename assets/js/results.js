@@ -6,7 +6,7 @@ function handleCredentialResponse(response) {
 // Google Sheet API Credentials
 const sheetId = "1feNyfAjeawcinIjhHH5MLowbDjnP1OGE7anEHcyOj74"; // Your Google Sheet ID
 const apiKey = "YOUR_GOOGLE_API_KEY"; // You still need to replace this with your actual API key
-const range = "Sheet1!A2:G"; // Adjust based on your Google Sheet structure
+const range = "Sheet1!AY2:CG32"; // Adjust based on your Google Sheet structure
 
 async function checkResult() {
     const url = `https://sheets.googleapis.com/v4/spreadsheets/${sheetId}/values/${range}?key=${apiKey}`;
