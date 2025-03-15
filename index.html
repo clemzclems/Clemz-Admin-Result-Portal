@@ -3,109 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Portal</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>Admin Panel - School Portal</title>
+    <link rel="stylesheet" href="/assets/css/admin.css"> 
+    <script src="/assets/js/admin.js" defer></script> 
 </head>
 <body>
 
-    <h2>Login with Google</h2>
-    <div id="google-login-btn"></div>
-    <p id="user-info"></p>
+    <header>
+        <h1>Admin Dashboard</h1>
+        <nav>
+            <a href="index.html">Home</a> | 
+            <a href="teacher_dashboard.html">Teacher Dashboard</a> | 
+            <a href="student_dashboard.html">Student Dashboard</a> | 
+            <a href="check_results.html">Check Results</a> | 
+            <a href="logout.html">Logout</a>
+        </nav>
+    </header>
 
-    <h2>Check Student Result</h2>
-    <input type="text" id="scratch_card" placeholder="Enter PIN">
-    <button data-action="checkResult">Check Result</button>
+    <main>
+        <section>
+            <h2>Generate Student Scratch PINs</h2>
+            <button onclick="generatePins()">Generate New PINs</button>
+            <button onclick="downloadPins()" id="download-btn" style="display: none;">Download PINs</button>
+            <ul id="pin-list"></ul>
+        </section>
 
-    <!-- Result Table -->
-    <table id="result-table" border="1" style="display: none;">
-        <tr>
-            <th>Test 1</th> <th>Test 2</th> <th>Exam</th> <th>Total</th> <th>Average</th>
-        </tr>
-        <tr>
-            <td id="test1"></td> <td id="test2"></td> <td id="exam"></td> <td id="total"></td> <td id="average"></td>
-        </tr>
-    </table>
-
-    <!-- Download Result -->
-    <button data-action="downloadPDF">Download Result as PDF</button>
+        <section>
+            <h2>Google Login</h2>
+            <div id="google-login-btn"></div>
+            <p id="user-info"></p>
+        </section>
+    </main>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            console.log("Portal Loaded!");
+        // Initialize Google Sign-In
+        window.onload = function () {
+            google.accounts.id.initialize({
+                client_id: "766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com",
+                callback: handleCredentialResponse
+            });
 
-            // Google Login Functionality
-            function handleCredentialResponse(response) {
-                console.log("Google Login Response:", response);
-                
-                // Decode the JWT token
-                const user = JSON.parse(atob(response.credential.split(".")[1]));
-                alert("Welcome, " + user.name);
-                document.getElementById("user-info").textContent = "Logged in as: " + user.name;
+            google.accounts.id.renderButton(
+                document.getElementById("google-login-btn"),
+                { theme: "outline", size: "large" }
+            );
+        };
+
+        function handleCredentialResponse(response) {
+            console.log("Google Login Response:", response);
+            const user = JSON.parse(atob(response.credential.split(".")[1]));
+            document.getElementById("user-info").textContent = "Logged in as: " + user.name;
+            alert("Welcome, " + user.name);
+        }
+
+        function generatePins() {
+            alert("Generating new student scratch PINs...");
+            const pinList = document.getElementById("pin-list");
+            pinList.innerHTML = ""; 
+
+            for (let i = 0; i < 5; i++) {
+                const pin = Math.floor(100000 + Math.random() * 900000); 
+                const listItem = document.createElement("li");
+                listItem.textContent = pin;
+                pinList.appendChild(listItem);
             }
 
-            // Initialize Google Sign-In
-            window.onload = function () {
-                google.accounts.id.initialize({
-                    client_id: "766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com",
-                    callback: handleCredentialResponse
-                });
+            document.getElementById("download-btn").style.display = "block";
+        }
 
-                google.accounts.id.renderButton(
-                    document.getElementById("google-login-btn"),
-                    { theme: "outline", size: "large" }
-                );
-            };
-
-            // Check Student Result
-            function checkResult() {
-                let pin = document.getElementById("scratch_card").value;
-                let resultTable = document.getElementById("result-table");
-
-                if (pin) {
-                    alert("Fetching results...");
-                    resultTable.style.display = "table";
-
-                    // Example data
-                    let test1 = Math.floor(Math.random() * 100);
-                    let test2 = Math.floor(Math.random() * 100);
-                    let exam = Math.floor(Math.random() * 100);
-                    let total = test1 + test2 + exam;
-                    let average = (total / 3).toFixed(2);
-
-                    document.getElementById("test1").innerText = test1;
-                    document.getElementById("test2").innerText = test2;
-                    document.getElementById("exam").innerText = exam;
-                    document.getElementById("total").innerText = total;
-                    document.getElementById("average").innerText = average;
-                } else {
-                    alert("Please enter a PIN.");
-                }
-            }
-
-            // Download Student Result as PDF
-            function downloadPDF() {
-                alert("Downloading result as PDF...");
-
-                if (typeof jsPDF === "undefined") {
-                    alert("Error: jsPDF library not found.");
-                    return;
-                }
-
-                const { jsPDF } = window.jspdf;
-                const doc = new jsPDF();
-                doc.text("Student Results", 20, 20);
-                doc.text("Test 1: " + document.getElementById("test1").innerText, 20, 30);
-                doc.text("Test 2: " + document.getElementById("test2").innerText, 20, 40);
-                doc.text("Exam: " + document.getElementById("exam").innerText, 20, 50);
-                doc.text("Total: " + document.getElementById("total").innerText, 20, 60);
-                doc.text("Average: " + document.getElementById("average").innerText, 20, 70);
-                doc.save("student_result.pdf");
-            }
-
-            // Attach event listeners to buttons
-            document.querySelector("button[data-action='checkResult']").addEventListener("click", checkResult);
-            document.querySelector("button[data-action='downloadPDF']").addEventListener("click", downloadPDF);
-        });
+        function downloadPins() {
+            alert("Downloading PINs...");
+        }
     </script>
 
 </body>
