@@ -5,182 +5,201 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complete Student Result Portal</title>
 
-    <!-- Google Sign-In API -->
+    <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; background: linear-gradient(to right, #ff758c, #ff7eb3, #ff85d8); color: white; margin: 0; padding: 0; }
-        header { background: rgba(0, 0, 0, 0.8); padding: 15px; font-size: 24px; }
-        .container { max-width: 700px; margin: 20px auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); color: black; }
-        input, button { width: 80%; padding: 10px; margin: 10px 0; border-radius: 5px; border: 1px solid #ccc; }
-        button { background: #008CBA; color: white; cursor: pointer; }
-        button:hover { background: #005f7a; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        table, th, td { border: 1px solid black; }
-        th, td { padding: 10px; text-align: center; }
-        .logout-btn { background: red; }
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: linear-gradient(to right, #ff758c, #ff7eb3, #ff85d8);
+            color: white;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 15px;
+            font-size: 24px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            color: black;
+        }
+        input, button {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #008CBA;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #005f7a;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
-    <header>Student Result Portal</header>
 
-    <!-- Google Login -->
-    <div class="container" id="login-container">
-        <h2>Login with Google</h2>
-        <div id="g_id_onload"
-             data-client_id="766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com"
-             data-callback="onSignIn"
-             data-auto_prompt="false">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
+<header>Student Result Portal</header>
+
+<!-- Login Section -->
+<div class="container" id="login-container">
+    <h2>Login</h2>
+    <div id="g_id_onload"
+         data-client_id="766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com"
+         data-context="signin"
+         data-callback="handleCredentialResponse"
+         data-auto_prompt="false">
     </div>
+    <div class="g_id_signin" data-type="standard"></div>
+</div>
 
-    <!-- Admin Panel -->
-    <div id="admin-panel" class="container" style="display:none;">
-        <h2>Admin Dashboard</h2>
-        <button onclick="viewTeachersResults()">View Teachers' Results</button>
-        <button onclick="approveResults()">Approve Teacher Results</button>
-        <button onclick="generatePins()">Generate Scratch Card PINs</button>
-        <button onclick="logout()" class="logout-btn">Logout</button>
-        <p id="admin-status"></p>
-    </div>
+<!-- Admin Panel -->
+<div id="admin-panel" class="container" style="display:none;">
+    <h2>Admin Dashboard</h2>
+    <button onclick="viewTeacherResults()">View Teacher Results</button>
+    <button onclick="approveResults()">Approve Results</button>
+    <button onclick="generatePins()">Generate PINs</button>
+    <button onclick="viewPins()">View PINs</button>
+    <button onclick="logout()">Logout</button>
+    <p id="admin-status"></p>
+</div>
 
-    <!-- Teacher Panel -->
-    <div id="teacher-panel" class="container" style="display:none;">
-        <h2>Teacher Dashboard</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Student Name</th><th>Subject</th><th>CA 1</th><th>CA 2</th><th>Exam</th><th>Total</th><th>Average</th>
-                </tr>
-            </thead>
-            <tbody id="teacher-table">
-                <!-- Rows will be inserted dynamically -->
-            </tbody>
-        </table>
-        <button onclick="submitResults()">Submit Results</button>
-        <button onclick="logout()" class="logout-btn">Logout</button>
-        <p id="teacher-status"></p>
-    </div>
+<!-- Teacher Panel -->
+<div id="teacher-panel" class="container" style="display:none;">
+    <h2>Teacher Dashboard</h2>
+    <input type="text" id="student_name" placeholder="Enter Student Name">
+    <table id="result-table">
+        <thead>
+            <tr><th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Average</th></tr>
+        </thead>
+        <tbody id="results-body"></tbody>
+    </table>
+    <button onclick="submitResults()">Submit Results</button>
+    <button onclick="logout()">Logout</button>
+</div>
 
-    <!-- Student Panel -->
-    <div id="student-panel" class="container" style="display:none;">
-        <h2>Check Student Result</h2>
-        <input type="text" id="student_id" placeholder="Enter Student ID">
-        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
-        <button onclick="checkResult()">Check Result</button>
-        <button onclick="logout()" class="logout-btn">Logout</button>
-        <table id="result-table" style="display:none;">
-            <thead>
-                <tr><th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th></tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td id="res_test1"></td><td id="res_test2"></td><td id="res_exam"></td>
-                    <td id="res_total"></td><td id="res_average"></td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
+<!-- Student Panel -->
+<div id="student-panel" class="container" style="display:none;">
+    <h2>Check Student Result</h2>
+    <input type="text" id="student_id" placeholder="Enter Student Name">
+    <input type="text" id="scratch_card" placeholder="Enter PIN">
+    <button onclick="checkResult()">Check Result</button>
+    <table id="student-result-table" style="display:none;">
+        <thead><tr><th>Subject</th><th>CA1</th><th>CA2</th><th>Exam</th><th>Total</th><th>Average</th></tr></thead>
+        <tbody id="student-results-body"></tbody>
+    </table>
+    <button onclick="logout()">Logout</button>
+</div>
 
-    <script>
-        let currentUser = "";
-        let results = {};  
-        let approvedResults = {};  
+<script>
+    let currentUser = "";
+    let teacherResults = {};
+    let approvedResults = {};
+    let subjects = ["Mathematics", "English", "Basic Science", "Social Studies", "Agric Science", "Civic Education", "Business Studies", "CRS", "Home Economics", "Computer Science", "Physical & Health Education"];
 
-        function onSignIn(response) {
-            let user = response.credential;
-            document.getElementById("login-container").style.display = "none";
+    function handleCredentialResponse(response) {
+        let userData = JSON.parse(atob(response.credential.split('.')[1]));
+        let email = userData.email;
 
-            if (user.includes("admin")) {
-                currentUser = "admin";
-                document.getElementById("admin-panel").style.display = "block";
-            } else if (user.includes("teacher")) {
-                currentUser = "teacher";
-                document.getElementById("teacher-panel").style.display = "block";
-                populateTeacherTable();
-            } else {
-                currentUser = "student";
-                document.getElementById("student-panel").style.display = "block";
-            }
+        if (email.includes("admin")) {
+            currentUser = "admin";
+            showPanel("admin-panel");
+        } else if (email.includes("teacher")) {
+            currentUser = "teacher";
+            showPanel("teacher-panel");
+            loadSubjects();
+        } else {
+            currentUser = "student";
+            showPanel("student-panel");
         }
+    }
 
-        function logout() {
-            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
-            document.getElementById("login-container").style.display = "block";
-            currentUser = "";
-        }
+    function showPanel(panelId) {
+        document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+        document.getElementById(panelId).style.display = "block";
+    }
 
-        function populateTeacherTable() {
-            let table = document.getElementById("teacher-table");
-            table.innerHTML = "";
-            for (let i = 1; i <= 11; i++) {
-                let row = `<tr>
-                    <td><input type="text" placeholder="Student Name"></td>
-                    <td><input type="text" placeholder="Subject"></td>
-                    <td><input type="number" class="ca1"></td>
-                    <td><input type="number" class="ca2"></td>
-                    <td><input type="number" class="exam"></td>
-                    <td class="total"></td>
-                    <td class="average"></td>
-                </tr>`;
-                table.innerHTML += row;
-            }
-        }
+    function loadSubjects() {
+        let tbody = document.getElementById("results-body");
+        tbody.innerHTML = "";
+        subjects.forEach(sub => {
+            let row = `<tr>
+                <td>${sub}</td>
+                <td><input type="number" class="ca1"></td>
+                <td><input type="number" class="ca2"></td>
+                <td><input type="number" class="exam"></td>
+                <td class="total"></td>
+                <td class="average"></td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
 
-        function submitResults() {
-            if (currentUser !== "teacher") {
-                alert("Only Teachers Can Submit Results!");
-                return;
-            }
+    function submitResults() {
+        let student = document.getElementById("student_name").value;
+        let rows = document.querySelectorAll("#results-body tr");
 
-            let tableRows = document.querySelectorAll("#teacher-table tr");
-            let teacherResults = [];
+        teacherResults[student] = [];
 
-            tableRows.forEach(row => {
-                let student = row.cells[0].children[0].value;
-                let subject = row.cells[1].children[0].value;
-                let ca1 = Number(row.cells[2].children[0].value);
-                let ca2 = Number(row.cells[3].children[0].value);
-                let exam = Number(row.cells[4].children[0].value);
-                let total = ca1 + ca2 + exam;
-                let average = total / 3;
+        rows.forEach(row => {
+            let ca1 = Number(row.querySelector(".ca1").value);
+            let ca2 = Number(row.querySelector(".ca2").value);
+            let exam = Number(row.querySelector(".exam").value);
+            let total = ca1 + ca2 + exam;
+            let average = total / 3;
 
-                row.cells[5].textContent = total;
-                row.cells[6].textContent = average.toFixed(2);
+            row.querySelector(".total").textContent = total;
+            row.querySelector(".average").textContent = average.toFixed(2);
 
-                teacherResults.push({ student, subject, ca1, ca2, exam, total, average });
-            });
+            teacherResults[student].push({ subject: row.cells[0].textContent, ca1, ca2, exam, total, average });
+        });
 
-            results = teacherResults;
-            alert("Results Submitted for Admin Approval!");
-        }
+        alert("Results Submitted for Admin Approval");
+    }
 
-        function viewTeachersResults() {
-            if (currentUser !== "admin") {
-                alert("Only Admin Can View Teachers' Results!");
-                return;
-            }
+    function viewTeacherResults() {
+        console.log("Pending Results:", teacherResults);
+        alert("Check Console for Teacher Results");
+    }
 
-            console.log("Teachers' Results: ", results);
-            alert("Teachers' Results Logged to Console. Check Developer Console (F12).");
-        }
+    function approveResults() {
+        approvedResults = { ...teacherResults };
+        alert("Results Approved!");
+    }
 
-        function approveResults() {
-            if (currentUser !== "admin") {
-                alert("Only Admin Can Approve Results!");
-                return;
-            }
+    function generatePins() {
+        let pin = Math.floor(100000 + Math.random() * 900000);
+        alert("Generated PIN: " + pin);
+    }
 
-            approvedResults = { ...results };
-            alert("All Results Approved!");
-        }
+    function logout() {
+        currentUser = "";
+        showPanel("login-container");
+    }
+</script>
 
-        function generatePins() {
-            let newPin = Math.floor(100000 + Math.random() * 900000);
-            console.log("Generated PIN (Timestamped):", newPin, Date.now());
-            alert("New PIN Generated! Check Console (F12).");
-        }
-    </script>
 </body>
-    </html>
+</html>
