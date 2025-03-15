@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Student Result Portal</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -17,10 +18,7 @@
             padding: 20px;
             text-align: center;
         }
-        h1 {
-            margin: 0;
-            font-size: 36px;
-        }
+        h1 { margin: 0; font-size: 36px; }
         .section {
             padding: 20px;
             margin: 20px;
@@ -28,36 +26,19 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         button {
-            padding: 10px;
-            background-color: #4e73df;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
+            padding: 10px; background-color: #4e73df; color: white;
+            border: none; border-radius: 5px; cursor: pointer; margin-top: 10px;
         }
-        button:hover {
-            background-color: #1cc88a;
-        }
+        button:hover { background-color: #1cc88a; }
         input[type="text"], input[type="password"] {
-            padding: 10px;
-            width: 100%;
-            margin-top: 10px;
-            border-radius: 5px;
-            border: 1px solid #ccc;
+            padding: 10px; width: 100%; margin-top: 10px;
+            border-radius: 5px; border: 1px solid #ccc;
         }
         table {
-            width: 100%;
-            margin-top: 20px;
-            border-collapse: collapse;
+            width: 100%; margin-top: 20px; border-collapse: collapse;
         }
-        th, td {
-            padding: 10px;
-            border: 1px solid #ddd;
-        }
-        th {
-            background-color: #4e73df;
-        }
+        th, td { padding: 10px; border: 1px solid #ddd; }
+        th { background-color: #4e73df; }
     </style>
 </head>
 <body>
@@ -66,162 +47,125 @@
     <h1>Student Result Portal</h1>
 </header>
 
-<!-- Admin Login Section -->
+<!-- Admin Login -->
 <section id="admin-login" class="section">
     <h2>Admin Login</h2>
-    <input type="text" id="admin-email" placeholder="Enter Admin Email">
-    <input type="password" id="admin-password" placeholder="Enter Admin Password">
-    <button onclick="adminLogin()">Login</button>
+    <div id="admin-signin"></div>
 </section>
 
-<!-- Admin Panel - PIN Generation -->
+<!-- Admin Panel -->
 <section id="admin-panel" class="section" style="display: none;">
     <h2>Admin Panel - PIN Generation</h2>
     <button onclick="generatePin()">Generate Scratch Card PIN</button>
     <ul id="pin-list"></ul>
 </section>
 
-<!-- Teacher Login Section -->
+<!-- Teacher Login -->
 <section id="teacher-login" class="section">
     <h2>Teacher Login</h2>
-    <input type="text" id="teacher-email" placeholder="Enter Teacher Email">
-    <input type="password" id="teacher-password" placeholder="Enter Teacher Password">
-    <button onclick="teacherLogin()">Login</button>
+    <div id="teacher-signin"></div>
 </section>
 
 <!-- Teacher Result Entry Panel -->
 <section id="teacher-panel" class="section" style="display: none;">
     <h2>Teacher Panel - Enter Student Results</h2>
-    <label for="entry-method">Choose Entry Method:</label>
-    <select id="entry-method">
-        <option value="manual">Manual Entry</option>
-        <option value="md">Markdown File</option>
-        <option value="xlsx">Excel File</option>
-    </select>
-
-    <div id="manual-entry" style="display: block;">
-        <input type="text" id="student-name" placeholder="Enter Student Name">
-        <input type="text" id="score1" placeholder="Enter Test 1 Score">
-        <input type="text" id="score2" placeholder="Enter Test 2 Score">
-        <input type="text" id="exam-score" placeholder="Enter Exam Score">
-        <button onclick="submitManualResult()">Submit Result</button>
-    </div>
-    <div id="md-entry" style="display: none;">
-        <input type="file" id="md-file" accept=".md">
-        <button onclick="submitMdFile()">Submit Markdown File</button>
-    </div>
-    <div id="xlsx-entry" style="display: none;">
-        <input type="file" id="xlsx-file" accept=".xlsx">
-        <button onclick="submitXlsxFile()">Submit Excel File</button>
-    </div>
+    <input type="text" id="student-name" placeholder="Student Name">
+    <input type="text" id="score1" placeholder="Test 1 Score">
+    <input type="text" id="score2" placeholder="Test 2 Score">
+    <input type="text" id="exam-score" placeholder="Exam Score">
+    <button onclick="submitManualResult()">Submit</button>
 </section>
 
-<!-- Student Result Check Section -->
+<!-- Student Result Check -->
 <section id="student-check" class="section">
-    <h2>Student Result Check</h2>
-    <input type="text" id="student-id" placeholder="Enter Student ID">
-    <input type="text" id="scratch-card" placeholder="Enter Scratch PIN">
-    <button onclick="checkResult()">Check Result</button>
+    <h2>Check Student Result</h2>
+    <input type="text" id="student-id" placeholder="Student ID">
+    <input type="text" id="scratch-card" placeholder="Scratch PIN">
+    <button onclick="checkResult()">Check</button>
     <table id="result-table">
         <thead>
-            <tr>
-                <th>Test 1</th>
-                <th>Test 2</th>
-                <th>Exam</th>
-                <th>Total</th>
-                <th>Average</th>
-            </tr>
+            <tr><th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th></tr>
         </thead>
         <tbody>
             <tr>
-                <td id="test1"></td>
-                <td id="test2"></td>
-                <td id="exam"></td>
-                <td id="total"></td>
-                <td id="average"></td>
+                <td id="test1"></td><td id="test2"></td><td id="exam"></td>
+                <td id="total"></td><td id="average"></td>
             </tr>
         </tbody>
     </table>
 </section>
 
 <script>
-    // Admin login and PIN generation
-    function adminLogin() {
-        const email = document.getElementById('admin-email').value;
-        const password = document.getElementById('admin-password').value;
-        if (email === 'admin@example.com' && password === 'adminpassword') {
-            document.getElementById('admin-login').style.display = 'none';
-            document.getElementById('admin-panel').style.display = 'block';
+    const CLIENT_ID = "766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com";
+
+    function handleCredentialResponse(response) {
+        const idToken = response.credential;
+        const decodedToken = JSON.parse(atob(idToken.split(".")[1]));
+        const email = decodedToken.email;
+
+        if (email === "admin@example.com") {
+            document.getElementById("admin-login").style.display = "none";
+            document.getElementById("admin-panel").style.display = "block";
+        } else if (email === "teacher@example.com") {
+            document.getElementById("teacher-login").style.display = "none";
+            document.getElementById("teacher-panel").style.display = "block";
         } else {
-            alert('Invalid admin credentials');
+            alert("Unauthorized user");
         }
     }
 
+    window.onload = function () {
+        google.accounts.id.initialize({
+            client_id: CLIENT_ID,
+            callback: handleCredentialResponse
+        });
+
+        google.accounts.id.renderButton(
+            document.getElementById("admin-signin"),
+            { theme: "outline", size: "large", text: "signin_with" }
+        );
+
+        google.accounts.id.renderButton(
+            document.getElementById("teacher-signin"),
+            { theme: "outline", size: "large", text: "signin_with" }
+        );
+    };
+
     function generatePin() {
         const pin = Math.floor(Math.random() * 1000000);
-        const pinList = document.getElementById('pin-list');
-        const li = document.createElement('li');
+        const pinList = document.getElementById("pin-list");
+        const li = document.createElement("li");
         li.textContent = `Generated PIN: ${pin}`;
         pinList.appendChild(li);
     }
 
-    // Teacher login
-    function teacherLogin() {
-        const email = document.getElementById('teacher-email').value;
-        const password = document.getElementById('teacher-password').value;
-        if (email === 'teacher@example.com' && password === 'teacherpassword') {
-            document.getElementById('teacher-login').style.display = 'none';
-            document.getElementById('teacher-panel').style.display = 'block';
-        } else {
-            alert('Invalid teacher credentials');
-        }
-    }
-
-    // Result entry methods
-    document.getElementById('entry-method').addEventListener('change', function () {
-        const method = this.value;
-        document.getElementById('manual-entry').style.display = method === 'manual' ? 'block' : 'none';
-        document.getElementById('md-entry').style.display = method === 'md' ? 'block' : 'none';
-        document.getElementById('xlsx-entry').style.display = method === 'xlsx' ? 'block' : 'none';
-    });
-
     function submitManualResult() {
-        const name = document.getElementById('student-name').value;
-        const score1 = document.getElementById('score1').value;
-        const score2 = document.getElementById('score2').value;
-        const exam = document.getElementById('exam-score').value;
-
-        const total = parseInt(score1) + parseInt(score2) + parseInt(exam);
-        const average = total / 3;
+        const name = document.getElementById("student-name").value;
+        const score1 = parseInt(document.getElementById("score1").value) || 0;
+        const score2 = parseInt(document.getElementById("score2").value) || 0;
+        const exam = parseInt(document.getElementById("exam-score").value) || 0;
+        const total = score1 + score2 + exam;
+        const average = (total / 3).toFixed(2);
 
         alert(`Result for ${name}: Total = ${total}, Average = ${average}`);
     }
 
-    function submitMdFile() {
-        alert('Markdown file submitted.');
-    }
-
-    function submitXlsxFile() {
-        alert('Excel file submitted.');
-    }
-
-    // Student result check
     function checkResult() {
-        const studentId = document.getElementById('student-id').value;
-        const scratchCard = document.getElementById('scratch-card').value;
+        const studentId = document.getElementById("student-id").value;
+        const scratchCard = document.getElementById("scratch-card").value;
 
         if (studentId && scratchCard) {
-            document.getElementById('test1').textContent = '80';
-            document.getElementById('test2').textContent = '85';
-            document.getElementById('exam').textContent = '90';
+            document.getElementById("test1").textContent = "80";
+            document.getElementById("test2").textContent = "85";
+            document.getElementById("exam").textContent = "90";
             const total = 80 + 85 + 90;
-            document.getElementById('total').textContent = total;
-            document.getElementById('average').textContent = total / 3;
+            document.getElementById("total").textContent = total;
+            document.getElementById("average").textContent = (total / 3).toFixed(2);
         } else {
-            alert('Please enter both Student ID and Scratch PIN.');
+            alert("Please enter both Student ID and Scratch PIN.");
         }
     }
 </script>
 
 </body>
-</html>
+    </html>
