@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Result Portal | Clemz Clems Group of school </title>
+    <title>Complete Student Result Portal | Clemz Clems Graphics Works</title>
     
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
         body {
@@ -31,7 +31,6 @@
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
             color: black;
-            display: none;
         }
 
         input, button {
@@ -70,148 +69,171 @@
 </head>
 <body>
 
-    <header>Student Result Portal | Clemz Clems Graphics Works</header>
+    <header>Complete Student Result Portal</header>
 
-    <div class="container" id="role-selection" style="display:block;">
+    <div class="container">
         <h2>Login as</h2>
         <button onclick="login('admin')">Admin</button>
         <button onclick="login('teacher')">Teacher</button>
         <button onclick="login('student')">Student</button>
     </div>
 
+    <!-- Admin Panel -->
+    <div id="admin-panel" class="container" style="display:none;">
+        <h2>Admin Dashboard</h2>
+        <button onclick="generatePins()">Generate Scratch Card PINs</button>
+        <button onclick="viewPins()">View Generated PINs</button>
+        <button onclick="approveResults()">Approve Teacher Results</button>
+        <button onclick="resetPins()">Reset PINs</button>
+        <button onclick="logout()">Navigate Out of Admin Dashboard</button>
+        <p id="admin-status"></p>
+        <ul id="pin-list"></ul>
+    </div>
+
     <!-- Teacher Panel -->
-    <div id="teacher-panel" class="container">
+    <div id="teacher-panel" class="container" style="display:none;">
         <h2>Teacher Dashboard</h2>
         <input type="text" id="student_name" placeholder="Enter Student Name">
-
-        <h3>Math</h3>
-        <input type="number" id="math_test1" placeholder="Test 1 Score">
-        <input type="number" id="math_test2" placeholder="Test 2 Score">
-        <input type="number" id="math_exam" placeholder="Exam Score">
-
-        <h3>English</h3>
-        <input type="number" id="eng_test1" placeholder="Test 1 Score">
-        <input type="number" id="eng_test2" placeholder="Test 2 Score">
-        <input type="number" id="eng_exam" placeholder="Exam Score">
-
+        <input type="number" id="test1" placeholder="Test 1 Score">
+        <input type="number" id="test2" placeholder="Test 2 Score">
+        <input type="number" id="exam" placeholder="Exam Score">
         <button onclick="submitResults()">Submit Results</button>
-        <button onclick="logout()">Navigate Out</button>
+        <button onclick="logout()">Navigate Out of Teacher Dashboard</button>
         <p id="teacher-status"></p>
     </div>
 
     <!-- Student Panel -->
-    <div id="student-panel" class="container">
+    <div id="student-panel" class="container" style="display:none;">
         <h2>Check Student Result</h2>
-        <input type="text" id="student_id" placeholder="Enter Student Name">
+        <input type="text" id="student_id" placeholder="Enter Student ID">
+        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
         <button onclick="checkResult()">Check Result</button>
-        <button onclick="printPDF()">Print Result</button>
 
         <table id="result-table" style="display:none;">
             <thead>
                 <tr>
-                    <th>Subject</th><th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
+                    <th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td>Math</td>
-                    <td id="math_test1_out"></td>
-                    <td id="math_test2_out"></td>
-                    <td id="math_exam_out"></td>
-                    <td id="math_total"></td>
-                    <td id="math_average"></td>
-                </tr>
-                <tr>
-                    <td>Eng</td>
-                    <td id="eng_test1_out"></td>
-                    <td id="eng_test2_out"></td>
-                    <td id="eng_exam_out"></td>
-                    <td id="eng_total"></td>
-                    <td id="eng_average"></td>
+                    <td id="res_test1"></td>
+                    <td id="res_test2"></td>
+                    <td id="res_exam"></td>
+                    <td id="res_total"></td>
+                    <td id="res_average"></td>
                 </tr>
             </tbody>
         </table>
     </div>
 
     <script>
+        let currentUser = "";
         let results = {};
+        let approvedResults = {};
 
         function login(user) {
+            currentUser = user;
             document.querySelectorAll(".container").forEach(div => div.style.display = "none");
             document.getElementById(`${user}-panel`).style.display = "block";
         }
 
-        function submitResults() {
-            let student = document.getElementById("student_name").value;
-
-            let mathTest1 = Number(document.getElementById("math_test1").value);
-            let mathTest2 = Number(document.getElementById("math_test2").value);
-            let mathExam = Number(document.getElementById("math_exam").value);
-
-            let engTest1 = Number(document.getElementById("eng_test1").value);
-            let engTest2 = Number(document.getElementById("eng_test2").value);
-            let engExam = Number(document.getElementById("eng_exam").value);
-
-            let mathTotal = mathTest1 + mathTest2 + mathExam;
-            let engTotal = engTest1 + engTest2 + engExam;
-
-            let mathAvg = mathTotal / 3;
-            let engAvg = engTotal / 3;
-
-            results[student] = {
-                math: { test1: mathTest1, test2: mathTest2, exam: mathExam, total: mathTotal, average: mathAvg },
-                eng: { test1: engTest1, test2: engTest2, exam: engExam, total: engTotal, average: engAvg }
-            };
-
-            document.getElementById("teacher-status").textContent = "Results Submitted!";
-        }
-
-        function checkResult() {
-            let studentName = document.getElementById("student_id").value;
-            if (!results[studentName]) {
-                alert("No results found!");
+        function generatePins() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can Generate PINs!");
                 return;
             }
 
-            let math = results[studentName].math;
-            let eng = results[studentName].eng;
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+            let newPin = Math.floor(100000 + Math.random() * 900000);
+            pins.push(newPin);
+            localStorage.setItem("pins", JSON.stringify(pins));
 
-            document.getElementById("math_test1_out").textContent = math.test1;
-            document.getElementById("math_test2_out").textContent = math.test2;
-            document.getElementById("math_exam_out").textContent = math.exam;
-            document.getElementById("math_total").textContent = math.total;
-            document.getElementById("math_average").textContent = math.average.toFixed(2);
+            document.getElementById("admin-status").textContent = "New PIN Generated: " + newPin;
+        }
 
-            document.getElementById("eng_test1_out").textContent = eng.test1;
-            document.getElementById("eng_test2_out").textContent = eng.test2;
-            document.getElementById("eng_exam_out").textContent = eng.exam;
-            document.getElementById("eng_total").textContent = eng.total;
-            document.getElementById("eng_average").textContent = eng.average.toFixed(2);
+        function viewPins() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can View PINs!");
+                return;
+            }
 
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+            let pinList = document.getElementById("pin-list");
+            pinList.innerHTML = "";
+            pins.forEach(pin => {
+                let li = document.createElement("li");
+                li.textContent = pin;
+                pinList.appendChild(li);
+            });
+        }
+
+        function resetPins() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can Reset PINs!");
+                return;
+            }
+
+            localStorage.removeItem("pins");
+            document.getElementById("pin-list").innerHTML = "";
+            document.getElementById("admin-status").textContent = "All PINs Reset!";
+        }
+
+        function submitResults() {
+            if (currentUser !== "teacher") {
+                alert("Only Teachers Can Submit Results!");
+                return;
+            }
+
+            let student = document.getElementById("student_name").value;
+            let test1 = Number(document.getElementById("test1").value);
+            let test2 = Number(document.getElementById("test2").value);
+            let exam = Number(document.getElementById("exam").value);
+            let total = test1 + test2 + exam;
+            let average = total / 3;
+
+            results[student] = { test1, test2, exam, total, average };
+            document.getElementById("teacher-status").textContent = "Results Submitted for Approval!";
+        }
+
+        function approveResults() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can Approve Results!");
+                return;
+            }
+
+            approvedResults = { ...results };
+            document.getElementById("admin-status").textContent = "All Results Approved!";
+        }
+
+        function checkResult() {
+            if (currentUser !== "student") {
+                alert("Only Students Can Check Results!");
+                return;
+            }
+
+            let enteredPin = document.getElementById("scratch_card").value;
+            let studentName = document.getElementById("student_id").value;
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+
+            if (!pins.includes(parseInt(enteredPin)) || !approvedResults[studentName]) {
+                alert("Invalid PIN or Results Not Approved Yet!");
+                return;
+            }
+
+            let result = approvedResults[studentName];
+            document.getElementById("res_test1").textContent = result.test1;
+            document.getElementById("res_test2").textContent = result.test2;
+            document.getElementById("res_exam").textContent = result.exam;
+            document.getElementById("res_total").textContent = result.total;
+            document.getElementById("res_average").textContent = result.average.toFixed(2);
             document.getElementById("result-table").style.display = "table";
         }
 
-        function printPDF() {
-            const { jsPDF } = window.jspdf;
-            let doc = new jsPDF();
-            doc.text("Student Result", 10, 10);
-
-            let studentName = document.getElementById("student_id").value;
-            if (!results[studentName]) {
-                doc.text("No result found", 10, 30);
-            } else {
-                let math = results[studentName].math;
-                let eng = results[studentName].eng;
-
-                doc.text(`Math - Test1: ${math.test1}, Test2: ${math.test2}, Exam: ${math.exam}, Total: ${math.total}, Avg: ${math.average.toFixed(2)}`, 10, 30);
-                doc.text(`Eng - Test1: ${eng.test1}, Test2: ${eng.test2}, Exam: ${eng.exam}, Total: ${eng.total}, Avg: ${eng.average.toFixed(2)}`, 10, 40);
-            }
-
-            doc.save("Student_Result.pdf");
-        }
-
         function logout() {
-            location.reload();
+            currentUser = "";
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            document.querySelector(".container").style.display = "block";
         }
     </script>
 
