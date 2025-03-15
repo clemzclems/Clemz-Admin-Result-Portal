@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Result Portal</title>
+    <title>Complete Student Result Portal</title>
     
-    <!-- Google Sign-In -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
-        /* Beautiful Radiant Background */
-        body { 
+        body {
             font-family: Arial, sans-serif;
             text-align: center;
             background: linear-gradient(to right, #ff758c, #ff7eb3, #ff85d8);
@@ -18,7 +16,7 @@
             margin: 0;
             padding: 0;
         }
-        
+
         header {
             background: rgba(0, 0, 0, 0.8);
             padding: 15px;
@@ -74,13 +72,6 @@
     <header>Student Result Portal</header>
 
     <div class="container">
-        <!-- Google Login -->
-        <div id="g_id_onload"
-            data-client_id="766636262884-ummeaii04ebrs4f1uccng4e78f80cois.apps.googleusercontent.com"
-            data-callback="handleCredentialResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard"></div>
-
         <h2>Login as</h2>
         <button onclick="login('admin')">Admin</button>
         <button onclick="login('teacher')">Teacher</button>
@@ -91,21 +82,25 @@
     <div id="admin-panel" class="container" style="display:none;">
         <h2>Admin Dashboard</h2>
         <button onclick="generatePins()">Generate Scratch Card PINs</button>
-        <button onclick="approveResults()">Approve Teacher Entries</button>
+        <button onclick="viewPins()">View Generated PINs</button>
+        <button onclick="approveResults()">Approve Teacher Results</button>
+        <button onclick="resetPins()">Reset PINs</button>
         <p id="admin-status"></p>
+        <ul id="pin-list"></ul>
     </div>
 
     <!-- Teacher Panel -->
     <div id="teacher-panel" class="container" style="display:none;">
         <h2>Teacher Dashboard</h2>
         <input type="text" id="student_name" placeholder="Enter Student Name">
-        <input type="number" id="test1" placeholder="Enter Test 1 Score">
-        <input type="number" id="test2" placeholder="Enter Test 2 Score">
-        <input type="number" id="exam" placeholder="Enter Exam Score">
-        <button onclick="submitScores()">Submit Scores</button>
+        <input type="number" id="test1" placeholder="Test 1 Score">
+        <input type="number" id="test2" placeholder="Test 2 Score">
+        <input type="number" id="exam" placeholder="Exam Score">
+        <button onclick="submitResults()">Submit Results</button>
+        <p id="teacher-status"></p>
     </div>
 
-    <!-- Student Result Section -->
+    <!-- Student Panel -->
     <div id="student-panel" class="container" style="display:none;">
         <h2>Check Student Result</h2>
         <input type="text" id="student_id" placeholder="Enter Student ID">
@@ -132,11 +127,8 @@
 
     <script>
         let currentUser = "";
-
-        function handleCredentialResponse(response) {
-            console.log("Google Authentication Successful");
-            alert("Login Successful");
-        }
+        let results = {};
+        let approvedResults = {};
 
         function login(user) {
             currentUser = user;
@@ -149,7 +141,57 @@
                 alert("Only Admin Can Generate PINs!");
                 return;
             }
-            document.getElementById("admin-status").textContent = "New Scratch PINs Generated!";
+
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+            let newPin = Math.floor(100000 + Math.random() * 900000);
+            pins.push(newPin);
+            localStorage.setItem("pins", JSON.stringify(pins));
+
+            document.getElementById("admin-status").textContent = "New PIN Generated: " + newPin;
+        }
+
+        function viewPins() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can View PINs!");
+                return;
+            }
+
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+            let pinList = document.getElementById("pin-list");
+            pinList.innerHTML = "";
+            pins.forEach(pin => {
+                let li = document.createElement("li");
+                li.textContent = pin;
+                pinList.appendChild(li);
+            });
+        }
+
+        function resetPins() {
+            if (currentUser !== "admin") {
+                alert("Only Admin Can Reset PINs!");
+                return;
+            }
+
+            localStorage.removeItem("pins");
+            document.getElementById("pin-list").innerHTML = "";
+            document.getElementById("admin-status").textContent = "All PINs Reset!";
+        }
+
+        function submitResults() {
+            if (currentUser !== "teacher") {
+                alert("Only Teachers Can Submit Results!");
+                return;
+            }
+
+            let student = document.getElementById("student_name").value;
+            let test1 = Number(document.getElementById("test1").value);
+            let test2 = Number(document.getElementById("test2").value);
+            let exam = Number(document.getElementById("exam").value);
+            let total = test1 + test2 + exam;
+            let average = total / 3;
+
+            results[student] = { test1, test2, exam, total, average };
+            document.getElementById("teacher-status").textContent = "Results Submitted for Approval!";
         }
 
         function approveResults() {
@@ -157,22 +199,9 @@
                 alert("Only Admin Can Approve Results!");
                 return;
             }
-            document.getElementById("admin-status").textContent = "All Teacher Entries Approved!";
-        }
 
-        function submitScores() {
-            if (currentUser !== "teacher") {
-                alert("Only Teachers Can Submit Scores!");
-                return;
-            }
-
-            let test1 = parseInt(document.getElementById("test1").value) || 0;
-            let test2 = parseInt(document.getElementById("test2").value) || 0;
-            let exam = parseInt(document.getElementById("exam").value) || 0;
-            let total = test1 + test2 + exam;
-            let average = total / 3;
-
-            alert(`Scores Submitted!\nTotal: ${total}, Average: ${average.toFixed(2)}`);
+            approvedResults = { ...results };
+            document.getElementById("admin-status").textContent = "All Results Approved!";
         }
 
         function checkResult() {
@@ -181,11 +210,21 @@
                 return;
             }
 
-            document.getElementById("res_test1").textContent = "15";
-            document.getElementById("res_test2").textContent = "18";
-            document.getElementById("res_exam").textContent = "60";
-            document.getElementById("res_total").textContent = "93";
-            document.getElementById("res_average").textContent = "31";
+            let enteredPin = document.getElementById("scratch_card").value;
+            let studentName = document.getElementById("student_id").value;
+            let pins = JSON.parse(localStorage.getItem("pins")) || [];
+
+            if (!pins.includes(parseInt(enteredPin)) || !approvedResults[studentName]) {
+                alert("Invalid PIN or Results Not Approved Yet!");
+                return;
+            }
+
+            let result = approvedResults[studentName];
+            document.getElementById("res_test1").textContent = result.test1;
+            document.getElementById("res_test2").textContent = result.test2;
+            document.getElementById("res_exam").textContent = result.exam;
+            document.getElementById("res_total").textContent = result.total;
+            document.getElementById("res_average").textContent = result.average.toFixed(2);
             document.getElementById("result-table").style.display = "table";
         }
     </script>
