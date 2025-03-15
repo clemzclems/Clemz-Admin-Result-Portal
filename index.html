@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Student Result Portal | Clemz Clems Group of Schoos</title>
+    <title>Complete Student Result Portal</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
     <style>
         body {
@@ -69,7 +71,7 @@
 </head>
 <body>
 
-    <header>Complete Student Result Portal</header>
+    <header>Student Result Portal</header>
 
     <div class="container">
         <h2>Login as</h2>
@@ -85,7 +87,7 @@
         <button onclick="viewPins()">View Generated PINs</button>
         <button onclick="approveResults()">Approve Teacher Results</button>
         <button onclick="resetPins()">Reset PINs</button>
-        <button onclick="logout()">Navigate Out of Admin Dashboard</button>
+        <button onclick="logout()">Logout</button>
         <p id="admin-status"></p>
         <ul id="pin-list"></ul>
     </div>
@@ -98,6 +100,7 @@
         <input type="number" id="test2" placeholder="Test 2 Score">
         <input type="number" id="exam" placeholder="Exam Score">
         <button onclick="submitResults()">Submit Results</button>
+        <button onclick="logout()">Logout</button>
         <p id="teacher-status"></p>
     </div>
 
@@ -107,6 +110,7 @@
         <input type="text" id="student_id" placeholder="Enter Student ID">
         <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
         <button onclick="checkResult()">Check Result</button>
+        <button onclick="downloadPDF()">Download as PDF</button>
 
         <table id="result-table" style="display:none;">
             <thead>
@@ -135,6 +139,11 @@
             currentUser = user;
             document.querySelectorAll(".container").forEach(div => div.style.display = "none");
             document.getElementById(`${user}-panel`).style.display = "block";
+        }
+
+        function logout() {
+            alert("Logging out...");
+            location.reload();
         }
 
         function generatePins() {
@@ -192,7 +201,7 @@
             let average = total / 3;
 
             results[student] = { test1, test2, exam, total, average };
-            document.getElementById("teacher-status").textContent = "Results Submitted for Approval!";
+            document.getElementById("teacher-status").textContent = "Results Submitted!";
         }
 
         function approveResults() {
@@ -202,40 +211,9 @@
             }
 
             approvedResults = { ...results };
-            document.getElementById("admin-status").textContent = "All Results Approved!";
-        }
-
-        function checkResult() {
-            if (currentUser !== "student") {
-                alert("Only Students Can Check Results!");
-                return;
-            }
-
-            let enteredPin = document.getElementById("scratch_card").value;
-            let studentName = document.getElementById("student_id").value;
-            let pins = JSON.parse(localStorage.getItem("pins")) || [];
-
-            if (!pins.includes(parseInt(enteredPin)) || !approvedResults[studentName]) {
-                alert("Invalid PIN or Results Not Approved Yet!");
-                return;
-            }
-
-            let result = approvedResults[studentName];
-            document.getElementById("res_test1").textContent = result.test1;
-            document.getElementById("res_test2").textContent = result.test2;
-            document.getElementById("res_exam").textContent = result.exam;
-            document.getElementById("res_total").textContent = result.total;
-            document.getElementById("res_average").textContent = result.average.toFixed(2);
-            document.getElementById("result-table").style.display = "table";
-        }
-
-        function logout() {
-            currentUser = "";
-            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
-            document.querySelector(".container").style.display = "block"; // Show login buttons again
+            document.getElementById("admin-status").textContent = "Results Approved!";
         }
     </script>
 
 </body>
-</html>
-
+    </html>
