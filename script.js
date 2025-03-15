@@ -2,10 +2,18 @@
 document.addEventListener("DOMContentLoaded", function () {
     console.log("Portal Loaded!");
 
+    // Login Functionality
+    const loginBtn = document.getElementById("login-btn");
+    if (loginBtn) {
+        loginBtn.addEventListener("click", function () {
+            alert("Login button clicked! Implement login logic here.");
+        });
+    }
+
     // Generate Student PINs
     function generatePins() {
         alert("Generating new student scratch PINs...");
-        const pinList = document.getElementById("pin-list");
+       const pinList = document.getElementById("pin-list");
         pinList.innerHTML = ""; // Clear previous pins
 
         for (let i = 0; i < 5; i++) {
