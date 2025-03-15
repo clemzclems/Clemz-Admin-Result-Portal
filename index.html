@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Complete Student Result Portal</title>
+    <title>Complete Student Result Portal | Clemz Clems Group of Schoos</title>
     
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
@@ -69,7 +69,7 @@
 </head>
 <body>
 
-    <header>Student Result Portal</header>
+    <header>Complete Student Result Portal</header>
 
     <div class="container">
         <h2>Login as</h2>
@@ -85,6 +85,7 @@
         <button onclick="viewPins()">View Generated PINs</button>
         <button onclick="approveResults()">Approve Teacher Results</button>
         <button onclick="resetPins()">Reset PINs</button>
+        <button onclick="logout()">Navigate Out of Admin Dashboard</button>
         <p id="admin-status"></p>
         <ul id="pin-list"></ul>
     </div>
@@ -226,6 +227,12 @@
             document.getElementById("res_total").textContent = result.total;
             document.getElementById("res_average").textContent = result.average.toFixed(2);
             document.getElementById("result-table").style.display = "table";
+        }
+
+        function logout() {
+            currentUser = "";
+            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
+            document.querySelector(".container").style.display = "block"; // Show login buttons again
         }
     </script>
 
