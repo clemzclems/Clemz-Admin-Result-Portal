@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Result Portal | Clemz Clems Graphics Works</title>
+    <title>School Result System | Clemz Clems Graphics Works</title>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
@@ -69,113 +69,157 @@
         .logout-btn {
             background: red;
         }
+
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
 
-    <header>Student Result Portal | Clemz Clems Graphics Works</header>
+    <header>School Result System | Clemz Clems Graphics Works</header>
 
     <div class="container">
-        <h2>Login as</h2>
-        <button onclick="login('admin')">Admin</button>
-        <button onclick="login('teacher')">Teacher</button>
-        <button onclick="login('student')">Student</button>
+        <h2>Select User Role</h2>
+        <button onclick="showAdmin()">Admin</button>
+        <button onclick="showTeacher()">Teacher</button>
+        <button onclick="showStudent()">Student</button>
     </div>
 
-    <!-- Admin Panel with Logout Button -->
-    <div id="admin-panel" class="container" style="display:none;">
-        <h2>Admin Dashboard</h2>
-        <button class="logout-btn" onclick="navigateOut()">Logout</button>
+    <!-- Admin Dashboard -->
+    <div class="container hidden" id="admin-panel">
+        <h2>Admin Panel</h2>
+        <input type="text" id="admin_username" placeholder="Admin Username">
+        <input type="password" id="admin_password" placeholder="Password">
+        <button onclick="adminLogin()">Login</button>
+
+        <div id="admin-actions" class="hidden">
+            <h3>Add Student Result</h3>
+            <input type="text" id="student_name" placeholder="Student Name">
+            <input type="text" id="math_score" placeholder="Math Score">
+            <input type="text" id="eng_score" placeholder="English Score">
+            <button onclick="addResult()">Add Result</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
     </div>
 
-    <!-- Student Panel -->
-    <div id="student-panel" class="container" style="display:none;">
+    <!-- Teacher Dashboard -->
+    <div class="container hidden" id="teacher-panel">
+        <h2>Teacher Panel</h2>
+        <input type="text" id="teacher_username" placeholder="Teacher Username">
+        <input type="password" id="teacher_password" placeholder="Password">
+        <button onclick="teacherLogin()">Login</button>
+
+        <div id="teacher-actions" class="hidden">
+            <h3>Update Student Result</h3>
+            <input type="text" id="update_student" placeholder="Student Name">
+            <input type="text" id="update_math" placeholder="New Math Score">
+            <input type="text" id="update_eng" placeholder="New English Score">
+            <button onclick="updateResult()">Update Result</button>
+            <button class="logout-btn" onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <!-- Student Dashboard -->
+    <div class="container hidden" id="student-panel">
         <h2>Check Student Result</h2>
-        <input type="text" id="student_id" placeholder="Enter Student ID">
-        <input type="text" id="scratch_card" placeholder="Enter Scratch PIN">
+        <input type="text" id="student_id" placeholder="Enter Student Name">
+        <input type="text" id="student_pin" placeholder="Enter PIN">
         <button onclick="checkResult()">Check Result</button>
 
-        <table id="result-table" style="display:none;">
+        <table id="result-table" class="hidden">
             <thead>
                 <tr>
-                    <th>Subject</th><th>Test 1</th><th>Test 2</th><th>Exam</th><th>Total</th><th>Average</th>
+                    <th>Subject</th><th>Score</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>Math</td>
-                    <td id="math_test1"></td>
-                    <td id="math_test2"></td>
-                    <td id="math_exam"></td>
-                    <td id="math_total"></td>
-                    <td id="math_average"></td>
-                </tr>
-                <tr>
-                    <td>Eng</td>
-                    <td id="eng_test1"></td>
-                    <td id="eng_test2"></td>
-                    <td id="eng_exam"></td>
-                    <td id="eng_total"></td>
-                    <td id="eng_average"></td>
-                </tr>
+                <tr><td>Math</td><td id="math_score_display"></td></tr>
+                <tr><td>English</td><td id="eng_score_display"></td></tr>
             </tbody>
         </table>
-        <button id="print-btn" onclick="printResult()" style="display:none;">Print Result</button>
+        <button id="print-btn" class="hidden" onclick="printResult()">Print Result</button>
+        <button class="logout-btn" onclick="logout()">Logout</button>
     </div>
 
     <script>
-        let currentUser = "";
-        let approvedResults = {
-            "JohnDoe": {
-                "math": { test1: 15, test2: 18, exam: 50, total: 83, average: 27.67 },
-                "eng": { test1: 17, test2: 20, exam: 48, total: 85, average: 28.33 }
-            }
-        };
+        let results = {}; 
 
-        function login(user) {
-            currentUser = user;
-            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
-            document.getElementById(`${user}-panel`).style.display = "block";
+        function generatePin() {
+            return Math.floor(1000 + Math.random() * 9000);
         }
 
-        function navigateOut() {
-            currentUser = "";
-            document.querySelectorAll(".container").forEach(div => div.style.display = "none");
-            alert("Logged out successfully!"); // No unnecessary show effect
+        function showAdmin() {
+            document.getElementById("admin-panel").classList.remove("hidden");
+            document.getElementById("teacher-panel").classList.add("hidden");
+            document.getElementById("student-panel").classList.add("hidden");
+        }
+
+        function showTeacher() {
+            document.getElementById("teacher-panel").classList.remove("hidden");
+            document.getElementById("admin-panel").classList.add("hidden");
+            document.getElementById("student-panel").classList.add("hidden");
+        }
+
+        function showStudent() {
+            document.getElementById("student-panel").classList.remove("hidden");
+            document.getElementById("admin-panel").classList.add("hidden");
+            document.getElementById("teacher-panel").classList.add("hidden");
+        }
+
+        function adminLogin() {
+            let user = document.getElementById("admin_username").value;
+            let pass = document.getElementById("admin_password").value;
+            if (user === "admin" && pass === "admin123") {
+                document.getElementById("admin-actions").classList.remove("hidden");
+            } else {
+                alert("Invalid Admin Credentials");
+            }
+        }
+
+        function teacherLogin() {
+            let user = document.getElementById("teacher_username").value;
+            let pass = document.getElementById("teacher_password").value;
+            if (user === "teacher" && pass === "teacher123") {
+                document.getElementById("teacher-actions").classList.remove("hidden");
+            } else {
+                alert("Invalid Teacher Credentials");
+            }
+        }
+
+        function addResult() {
+            let student = document.getElementById("student_name").value;
+            let math = document.getElementById("math_score").value;
+            let eng = document.getElementById("eng_score").value;
+            let pin = generatePin();
+            results[student] = { math, eng, pin };
+            alert(`Result Added! PIN: ${pin}`);
+        }
+
+        function updateResult() {
+            let student = document.getElementById("update_student").value;
+            let math = document.getElementById("update_math").value;
+            let eng = document.getElementById("update_eng").value;
+            if (results[student]) {
+                results[student].math = math;
+                results[student].eng = eng;
+                alert("Result Updated!");
+            } else {
+                alert("Student Not Found!");
+            }
         }
 
         function checkResult() {
-            if (currentUser !== "student") {
-                alert("Only Students Can Check Results!");
-                return;
+            let student = document.getElementById("student_id").value;
+            let pin = document.getElementById("student_pin").value;
+            if (results[student] && results[student].pin == pin) {
+                document.getElementById("math_score_display").textContent = results[student].math;
+                document.getElementById("eng_score_display").textContent = results[student].eng;
+                document.getElementById("result-table").classList.remove("hidden");
+                document.getElementById("print-btn").classList.remove("hidden");
+            } else {
+                alert("Invalid Student or PIN!");
             }
-
-            let studentName = document.getElementById("student_id").value;
-            let enteredPin = document.getElementById("scratch_card").value;
-            let pins = ["123456", "654321"];  // Sample valid PINs
-
-            if (!pins.includes(enteredPin) || !approvedResults[studentName]) {
-                alert("Invalid PIN or Results Not Found!");
-                return;
-            }
-
-            let math = approvedResults[studentName]["math"];
-            let eng = approvedResults[studentName]["eng"];
-
-            document.getElementById("math_test1").textContent = math.test1;
-            document.getElementById("math_test2").textContent = math.test2;
-            document.getElementById("math_exam").textContent = math.exam;
-            document.getElementById("math_total").textContent = math.total;
-            document.getElementById("math_average").textContent = math.average.toFixed(2);
-
-            document.getElementById("eng_test1").textContent = eng.test1;
-            document.getElementById("eng_test2").textContent = eng.test2;
-            document.getElementById("eng_exam").textContent = eng.exam;
-            document.getElementById("eng_total").textContent = eng.total;
-            document.getElementById("eng_average").textContent = eng.average.toFixed(2);
-
-            document.getElementById("result-table").style.display = "table";
-            document.getElementById("print-btn").style.display = "block";
         }
 
         function printResult() {
@@ -183,6 +227,10 @@
             let doc = new jsPDF();
             doc.text("Student Result - Clemz Clems Graphics Works", 20, 20);
             doc.save("student_result.pdf");
+        }
+
+        function logout() {
+            location.reload();
         }
     </script>
 
