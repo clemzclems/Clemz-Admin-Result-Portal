@@ -1,35 +1,41 @@
 <style>
+/* Global Styling */
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background: #f4f4f4;
+    background: linear-gradient(135deg, #ff7eb3, #ff758c, #ff6a88, #ff5f82);
     margin: 0;
     padding: 0;
+    color: white;
 }
 
 /* Header Styling */
 header {
-    background: #0073e6;
+    background: linear-gradient(135deg, #0073e6, #005bb5);
     color: white;
     padding: 15px;
     font-size: 26px;
     font-weight: bold;
     text-transform: uppercase;
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.3);
+    border-bottom: 4px solid #ffea00;
 }
 
 /* Main Section */
 section {
-    background: white;
+    background: linear-gradient(135deg, #ffffff, #f3f3f3);
     padding: 20px;
     margin: 20px auto;
     border-radius: 10px;
-    box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0px 5px 15px rgba(0, 0, 0, 0.4);
     max-width: 600px;
+    color: #333;
 }
 
 /* Headings */
 h1, h2 {
-    color: #333;
+    color: #ff4081;
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
 }
 
 /* Navigation List */
@@ -47,25 +53,33 @@ li {
 a {
     text-decoration: none;
     font-size: 18px;
-    color: blue;
+    color: #ffea00;
     font-weight: bold;
+    transition: color 0.3s;
+}
+
+a:hover {
+    color: #ff4081;
 }
 
 /* Buttons */
 button {
-    background: #0073e6;
+    background: linear-gradient(135deg, #ff7eb3, #ff4081);
     color: white;
     padding: 12px 18px;
     border: none;
-    border-radius: 5px;
+    border-radius: 25px;
     cursor: pointer;
     margin: 8px;
     font-size: 16px;
     font-weight: bold;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease-in-out;
 }
 
 button:hover {
-    background: #005bb5;
+    background: linear-gradient(135deg, #ff4081, #d81b60);
+    transform: scale(1.05);
 }
 
 /* Input Fields */
@@ -73,9 +87,17 @@ input {
     padding: 12px;
     margin: 10px;
     width: 85%;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+    border: 2px solid #ff4081;
+    border-radius: 25px;
     font-size: 16px;
+    text-align: center;
+    box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+    transition: border 0.3s;
+}
+
+input:focus {
+    border: 2px solid #0073e6;
+    outline: none;
 }
 
 /* Tables */
@@ -84,22 +106,37 @@ table {
     margin-top: 15px;
     border-collapse: collapse;
     display: none;
-    background: white;
+    background: linear-gradient(135deg, #ffffff, #f3f3f3);
+    border-radius: 10px;
+    box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 th, td {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: center;
+    font-weight: bold;
 }
 
 th {
-    background: #0073e6;
+    background: linear-gradient(135deg, #0073e6, #005bb5);
     color: white;
     font-size: 16px;
 }
 
 td {
-    background: #f9f9f9;
+    background: linear-gradient(135deg, #fffbf5, #f9f9f9);
+    color: #333;
+}
+
+/* Adding a glowing effect */
+@keyframes glow {
+    0% { box-shadow: 0 0 5px #ff4081; }
+    50% { box-shadow: 0 0 15px #ff4081; }
+    100% { box-shadow: 0 0 5px #ff4081; }
+}
+
+button:hover {
+    animation: glow 1.5s infinite alternate;
 }
 </style>
